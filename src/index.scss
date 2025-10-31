@@ -1,0 +1,73 @@
+@import url("https://fonts.googleapis.com/css2?family=Mitr:wght@200;300;400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Sarabun"), local("Sarabun-Regular"),
+    url("assets/fonts/Sarabun-Regular.ttf");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 500;
+  src: local("Sarabun"), local("Sarabun-Medium"),
+    url("assets/fonts/Sarabun-Medium.ttf");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* roboto-500 - latin-ext_latin */
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 600;
+  src: local("Sarabun SemiBold"), local("Sarabun-SemiBold"),
+    url("assets/fonts/Sarabun-SemiBold.ttf");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+/* roboto-700 - latin-ext_latin */
+@font-face {
+  font-family: "Sarabun";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Sarabun Bold"), local("Sarabun-Bold"),
+    url("assets/fonts/Sarabun-Bold.ttf");
+  /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+body {
+  font-family: Sarabun, Roboto, "Helvetica Neue", sans-serif !important;
+}
+
+.p {
+  &-component,
+  &-inputtext {
+    font-family: Sarabun, Roboto, "Helvetica Neue", sans-serif !important;
+  }
+}
+
+.font-mitr {
+  font-family: Mitr, sans-serif;
+}
+
+.dialog-footer-action-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.dialog-footer-action-left {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.dialog-footer-action-center {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}

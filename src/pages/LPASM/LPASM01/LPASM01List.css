@@ -1,0 +1,181 @@
+.modern-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  margin: 1rem;
+}
+
+.modern-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  /* margin-bottom: 1.5rem; */
+  /* padding: 0 0.5rem; */
+}
+
+.header-left {
+  display: flex;
+  flex: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.modern-add-button {
+  background: #4caf50 !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-add-button:hover {
+  background: #43a047 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2) !important;
+}
+
+.modern-search {
+  position: relative;
+}
+
+.modern-search-input {
+  width: 300px !important;
+  height: 42px !important;
+  border-radius: 21px !important;
+  padding-left: 2.5rem !important;
+  border: 1px solid #e0e0e0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-search-input:focus {
+  border-color: #2196f3 !important;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1) !important;
+}
+
+.modern-datatable {
+  border: none !important;
+}
+
+.modern-datatable .p-datatable-header {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.modern-datatable .p-datatable-thead > tr > th {
+  background: #f8f9fa !important;
+  color: #495057 !important;
+  font-weight: 600 !important;
+  padding: 1rem !important;
+  border: none !important;
+  border-bottom: 2px solid #e9ecef !important;
+}
+
+.modern-datatable .p-datatable-tbody > tr {
+  transition: all 0.2s ease !important;
+}
+
+.modern-datatable .p-datatable-tbody > tr > td {
+  padding: 1rem !important;
+  border: none !important;
+  border-bottom: 1px solid #e9ecef !important;
+}
+
+.modern-datatable .p-datatable-tbody > tr:hover {
+  background: #f8f9fa !important;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* .modern-edit-button {
+  color: #2196f3 !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-edit-button:hover {
+  background: rgba(33, 150, 243, 0.1) !important;
+  transform: scale(1.1);
+}
+
+.modern-cancel-button {
+  color: #f44336 !important;
+  background: transparent !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-cancel-button:hover {
+  background: rgba(244, 67, 54, 0.1) !important;
+  transform: scale(1.1);
+} */
+
+.status-badge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-wrap: nowrap;
+}
+
+.status-indicator {
+  border-radius: 10px;
+  padding: 0.25em 0.5rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+
+.status-active {
+  background: rgba(76, 175, 80, 0.1);
+  color: #2e7d32;
+}
+
+.status-inactive {
+  background: rgba(244, 67, 54, 0.1);
+  color: #c62828;
+}
+
+/* Pagination styling */
+.modern-datatable .p-paginator {
+  border: none !important;
+  background: transparent !important;
+  padding: 1rem 0 0 0 !important;
+}
+
+.modern-datatable .p-paginator .p-paginator-pages .p-paginator-page {
+  border-radius: 6px !important;
+  margin: 0 2px !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-datatable
+  .p-paginator
+  .p-paginator-pages
+  .p-paginator-page.p-highlight {
+  background: #2196f3 !important;
+  color: white !important;
+}
+
+.modern-datatable .p-paginator .p-paginator-pages .p-paginator-page:hover {
+  background: #f8f9fa !important;
+  transform: translateY(-2px);
+}
+
+/* Reorder column styling */
+.reorder-column {
+  cursor: move;
+}
+
+.reorder-column:hover {
+  background: #f8f9fa;
+}

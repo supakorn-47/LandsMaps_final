@@ -1,0 +1,348 @@
+/* Dialog Container */
+.modern-dialog {
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-dialog .p-dialog-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e9ecef !important;
+  padding: 1.5rem !important;
+  border-top-left-radius: 16px !important;
+  border-top-right-radius: 16px !important;
+}
+
+.modern-dialog .p-dialog-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+}
+
+.modern-dialog .p-dialog-content {
+  padding: 1.5rem !important;
+  background: #ffffff !important;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.p-dialog {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.p-dialog .p-dialog-header {
+  background: #ffffff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.p-dialog .p-dialog-content {
+  background: #ffffff;
+  padding: 1.5rem;
+}
+
+.p-dialog .p-dialog-footer {
+  /* background: #ffffff;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    padding: 1.5rem;
+    border-top: 1px solid #e0e0e0; */
+  /* padding: 0 !important; */
+}
+
+.p-dialog .p-dialog-footer .p-button {
+  margin: 0 !important;
+}
+
+/* Form Elements */
+.p-dialog .p-grid {
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.p-dialog label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.p-dialog .p-inputtext,
+.p-dialog .p-dropdown,
+.p-dialog .p-calendar,
+.p-dialog .p-password,
+.p-dialog .p-inputmask {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.p-dialog .p-inputtext:hover,
+.p-dialog .p-dropdown:hover,
+.p-dialog .p-calendar:not(:has(.p-inputtext.p-disabled)):hover,
+.p-dialog .p-password:hover,
+.p-dialog .p-inputmask:hover {
+  border-color: #2196f3;
+}
+
+.p-dialog .p-inputtext:focus,
+.p-dialog .p-dropdown:focus,
+.p-dialog .p-calendar:focus,
+.p-dialog .p-password:focus,
+.p-dialog .p-inputmask:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+  outline: none;
+}
+
+/* Buttons */
+.p-dialog .p-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.p-dialog .p-button.p-button-secondary {
+  /* background: #6c757d;
+    border-color: #6c757d; */
+}
+
+.p-dialog .p-button.p-button-secondary:hover {
+  /* background: #5a6268;
+    border-color: #5a6268; */
+}
+
+.p-dialog .p-button.p-button-success {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+.p-dialog .p-button.p-button-success:hover {
+  background: #218838;
+  border-color: #218838;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-group .p-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Divider */
+.p-dialog hr {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Error Messages */
+.p-dialog .p-invalid {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* Required Field Indicator */
+.p-dialog label span[style*="color: red"] {
+  color: #dc3545;
+  margin-left: 0.25rem;
+}
+
+/* Input Groups */
+.p-dialog .p-inputgroup {
+  display: flex;
+  align-items: stretch;
+}
+
+.p-dialog .p-inputgroup-addon {
+  background: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-left: none;
+  padding: 0.75rem;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.p-dialog .p-inputgroup-addon:hover {
+  background: #e9ecef;
+}
+
+.p-dialog .p-inputgroup .p-inputtext {
+  border-radius: 8px 0 0 8px;
+}
+
+/* Dropdown Specific */
+.p-dialog .p-dropdown {
+  min-width: 180px;
+  height: 44px;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.p-dialog .p-dropdown-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 44px;
+  font-size: 1rem;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  height: 44px;
+}
+
+.p-dialog .p-dropdown-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+  line-height: 2.2;
+  padding: 0.5rem 1.2rem;
+}
+
+.p-dialog .p-dropdown-panel {
+  min-width: 200px;
+  max-width: 350px;
+}
+
+/* Remove border from calendar input in dialog */
+.p-dialog .p-calendar .p-inputtext {
+  border: none !important;
+  background: transparent;
+  box-shadow: none;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.p-dialog .p-calendar .p-inputtext:focus {
+  border: none !important;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
+}
+
+/* --- Calendar Icon Button Modern Look --- */
+.p-dialog .p-calendar-w-btn .p-datepicker-trigger {
+  border: none !important;
+  background: #fff;
+  color: #00bcd4;
+  height: 44px;
+  min-width: 44px;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.p-dialog .p-calendar-w-btn .p-datepicker-trigger:hover {
+  background: #fff;
+  color: #00bcd4;
+}
+
+.p-dialog .p-calendar-w-btn .pi-calendar {
+  font-size: 1.4rem;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Password Input */
+.p-dialog .p-password-input {
+  border-radius: 8px 0 0 8px;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+  .p-dialog {
+    width: 95vw !important;
+  }
+
+  .p-dialog .p-grid {
+    padding: 0.25rem;
+  }
+
+  .checkbox-group {
+    gap: 0.5rem;
+  }
+}
+
+/* Responsive: allow wrapping on very small screens */
+@media screen and (max-width: 480px) {
+  .p-dialog .p-dropdown-label,
+  .p-dialog .p-dropdown-item {
+    white-space: normal;
+  }
+}
+
+/* --- Calendar Height Fix --- */
+.p-dialog .p-calendar,
+.p-dialog .p-calendar .p-inputtext {
+  height: 44px !important;
+  min-height: 44px;
+  line-height: 44px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.p-dialog .p-calendar .p-inputtext {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.p-dialog .p-calendar-w-btn .p-datepicker-trigger {
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.custom-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.custom-radio-group label {
+  margin: 0 !important;
+}

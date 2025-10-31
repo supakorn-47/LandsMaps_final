@@ -1,0 +1,14 @@
+{
+  "name": "sitdev-calendar-primefaces",
+  "version": "1.0.4",
+  "description": "calendar-primefaces",
+  "main": "Calendar.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "calendar, sitdev, "
+  ],
+  "author": "Pranudech",
+  "license": "ISC"
+}

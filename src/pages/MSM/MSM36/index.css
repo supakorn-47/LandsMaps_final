@@ -1,0 +1,12 @@
+body .p-button.__buttonReload,
+body .__buttonReload > .p-button {
+  color: #ffffff;
+  background: #607d8b;
+  border: 1px solid #607d8b;
+}
+body .__buttonReload:enabled:hover,
+body .__buttonReload > .p-button:enabled:hover {
+  background-color: #566a74;
+  color: #ffffff;
+  border-color: #566a74;
+}

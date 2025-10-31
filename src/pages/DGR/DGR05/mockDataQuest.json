@@ -1,0 +1,224 @@
+{
+  "status": 200,
+  "result": [
+    {
+      "formSeq": 41,
+      "formDate": "2025-05-19T07:37:48",
+      "formNameTh": "แบบสำรวจความพึงพอใจในการใช้ระบบบูรณาการทะเบียนที่ดิน กรมที่ดิน",
+      "formNameEn": "Satisfaction survey the System of Service Delivery in",
+      "formStartDate": "2025-05-19T07:37:48",
+      "formFinishDate": "2025-12-31T00:00:00",
+      "formRemark": "ทดสอบ แบบสำรวจความพึงพอใจในการใช้ระบบบูรณาการทะเบียนที่ดิน กรมที่ดิน",
+      "formList": [],
+      "report": {
+        "form_name_th": "แบบสำรวจความพึงพอใจในการใช้ระบบบูรณาการทะเบียนที่ดิน กรมที่ดิน",
+        "form_name_en": "Satisfaction survey the System of Service Delivery in",
+        "chartlist": [
+          {
+            "type": "pie",
+            "title_th": "กราฟแสดงผลสำรวจ จำแนกตามเพศ",
+            "title_en": "The graph shows the satisfaction survey results classified by Gender",
+            "tooltip_th": "ผลสำรวจ",
+            "tooltip_en": "Survey Reusult",
+            "total": 3,
+            "series": {
+              "name": "เพศ",
+              "data_th": [
+                {
+                  "color": null,
+                  "name": "ชาย",
+                  "y": 3,
+                  "z": 100
+                }
+              ],
+              "data_en": [
+                {
+                  "color": null,
+                  "name": "Male",
+                  "y": 3,
+                  "z": 100
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "formSeq": 101,
+      "formDate": "2025-08-13T00:00:00",
+      "formNameTh": "ทดสอบระบบ mylands",
+      "formNameEn": " Test MyLands SyStem",
+      "formStartDate": "2025-08-13T09:42:06",
+      "formFinishDate": "2025-08-31T00:00:00",
+      "formRemark": "เพื่อทดสอบแบบสำรวจ",
+      "formList": [],
+      "report": {
+        "form_name_th": "ทดสอบระบบ mylands",
+        "form_name_en": " Test MyLands SyStem",
+        "chartlist": [
+          {
+            "type": "pie",
+            "title_th": "กราฟแสดงผลสำรวจ จำแนกตามสามารถกรอกแบบสอบถามได้หรือไม่",
+            "title_en": "The graph shows the satisfaction survey results classified by Can you complete the questionnaire?",
+            "tooltip_th": "ผลสำรวจ",
+            "tooltip_en": "Survey Reusult",
+            "total": 15,
+            "series": {
+              "name": "สามารถกรอกแบบสอบถามได้หรือไม่",
+              "data_th": [
+                {
+                  "color": null,
+                  "name": "ได้",
+                  "y": 7,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "ไม่ได้",
+                  "y": 8,
+                  "z": 100
+                }
+              ],
+              "data_en": [
+                {
+                  "color": null,
+                  "name": "Yes",
+                  "y": 7,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "NO",
+                  "y": 8,
+                  "z": 100
+                }
+              ]
+            }
+          },
+          {
+            "type": "pie",
+            "title_th": "กราฟแสดงผลสำรวจ จำแนกตามเที่ยงนี้ทานอะไรดี",
+            "title_en": "The graph shows the satisfaction survey results classified by What should I eat for lunch?",
+            "tooltip_th": "ผลสำรวจ",
+            "tooltip_en": "Survey Reusult",
+            "total": 13,
+            "series": {
+              "name": "เที่ยงนี้ทานอะไรดี",
+              "data_th": [
+                {
+                  "color": null,
+                  "name": "ก๋วยเตี๋ยว",
+                  "y": 7,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "ส้มตำ",
+                  "y": 6,
+                  "z": 100
+                }
+              ],
+              "data_en": [
+                {
+                  "color": null,
+                  "name": "noodles",
+                  "y": 7,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "papaya salad",
+                  "y": 6,
+                  "z": 100
+                }
+              ]
+            }
+          },
+          {
+            "type": "pie",
+            "title_th": "กราฟแสดงผลสำรวจ จำแนกตามตอนเย็นกินอะไรดี",
+            "title_en": "The graph shows the satisfaction survey results classified by What should I eat in the evening?",
+            "tooltip_th": "ผลสำรวจ",
+            "tooltip_en": "Survey Reusult",
+            "total": 3,
+            "series": {
+              "name": "ตอนเย็นกินอะไรดี",
+              "data_th": [
+                {
+                  "color": null,
+                  "name": "is am are",
+                  "y": 1,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "น้ำปั่นผลไม้",
+                  "y": 1,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "ลูกชิ้นปิ้ง",
+                  "y": 1,
+                  "z": 100
+                }
+              ],
+              "data_en": [
+                {
+                  "color": null,
+                  "name": "is am are",
+                  "y": 1,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "Fruit smoothies",
+                  "y": 1,
+                  "z": 100
+                },
+                {
+                  "color": null,
+                  "name": "Toasted meatballs",
+                  "y": 1,
+                  "z": 100
+                }
+              ]
+            }
+          },
+          {
+            "type": "pie",
+            "title_th": "กราฟแสดงผลสำรวจ จำแนกตามดูหนังเรื่องอะไร",
+            "title_en": "The graph shows the satisfaction survey results classified by What movie do you watch?",
+            "tooltip_th": "ผลสำรวจ",
+            "tooltip_en": "Survey Reusult",
+            "total": 1,
+            "series": {
+              "name": "ดูหนังเรื่องอะไร",
+              "data_th": [
+                {
+                  "color": null,
+                  "name": null,
+                  "y": 1,
+                  "z": 100
+                }
+              ],
+              "data_en": [
+                {
+                  "color": null,
+                  "name": null,
+                  "y": 1,
+                  "z": 100
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "message": null,
+  "errors": {
+    "message": null
+  }
+}

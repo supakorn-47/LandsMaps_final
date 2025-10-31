@@ -1,0 +1,181 @@
+/* Profile.css */
+
+/* Container */
+.profile-container-text {
+  /* padding: 24px; */
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-image,
+.profile-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 1;
+  position: relative;
+}
+
+.camera-button {
+  position: absolute;
+  top: 50%; /* ให้อยู่ตรงกลาง */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  opacity: 0.5;
+  display: none; /* ซ่อนปุ่มก่อน */
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6); /* โปร่งดำเห็นชัด */
+  color: white !important;
+  z-index: 10;
+  cursor: pointer;
+}
+.profile-container:hover .camera-button {
+  display: flex;
+}
+
+/* Form elements */
+.input-text,
+.textarea,
+.dropdown,
+.calendar {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Buttons */
+.button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.button:hover {
+  background-color: #0056b3;
+}
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+  color: #fff;
+  background-color: #6c757d; /* default gray */
+}
+.badge-success {
+  background-color: #28a745;
+} /* เขียว */
+.badge-info {
+  background-color: #17a2b8;
+} /* ฟ้า */
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+} /* เหลือง */
+.badge-danger {
+  background-color: #dc3545;
+}
+.badge-container {
+  position: relative; /* สำคัญ! เพื่อให้ absolute อ้างอิง container */
+  display: inline-block; /* หรือ block ตามต้องการ */
+}
+
+.badge-absolute {
+  position: absolute;
+  bottom: 50px; /* ขยับจากล่าง 10px */
+  right: 180px;
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  border-radius: 50%; /* เป็นวงกลม */
+}
+.grid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 คอลัมน์เท่า ๆ กัน */
+  gap: 1rem; /* ระยะห่างระหว่างช่อง */
+  margin-bottom: 1rem;
+}
+
+.custom-full-width {
+  display: block !important;
+  width: 100% !important;
+}
+.button-row {
+  display: flex;
+  gap: 12px; /* ระยะห่างระหว่างปุ่ม */
+  width: 100%;
+}
+
+.button-row button {
+  flex: 1; /* ให้ปุ่มแต่ละอันกินพื้นที่เท่ากัน */
+  width: 100%;
+}
+
+/* เพิ่มความเฉพาะเจาะจงให้กับ selector และใช้ !important */
+.p-inputgroup.p-inputgroup-addon-custom .p-calendar .p-inputtext {
+  border-radius: 0 10px 10px 0 !important; /* ด้านขวาโค้ง */
+  /* border: 1px solid #ccc !important; */
+}
+.p-inputgroup.p-inputgroup-addon-custom .p-inputtext {
+  border-radius: 0 10px 10px 0 !important; /* ด้านขวาโค้ง */
+  /* border: 1px solid #ccc !important; */
+}
+
+.p-inputgroup.p-inputgroup-addon-custom .p-inputgroup-addon {
+  border-radius: 10px 0 0 10px !important; /* ด้านซ้ายโค้ง */
+  border: 1px solid #ccc !important;
+}
+
+/* เพิ่ม class สำหรับ p-inputgroup */
+.p-inputgroup.p-inputgroup-addon-custom {
+  display: flex;
+  border-radius: 10px !important; /* ขอบมุมกลุ่ม */
+  overflow: hidden !important; /* ไม่ให้ขอบเกินออกมา */
+}
+dialog .p-calendar {
+  border-radius: 8px;
+}
+.p-inputgroup-addon:last-child {
+  border-top-right-radius: 10px !important;
+  border-bottom-right-radius: 10px !important;
+  border: 1px solid #ccc;
+}
+.p-dialog .p-inputtext,
+.p-dialog .p-calendar,
+.p-dialog .p-password,
+.p-dialog .p-inputmask {
+  border-radius: 0 10px 10px 0 !important; /* ขอบมุมโค้ง */
+  padding: 10px; /* ระยะห่างภายใน */
+  font-size: 14px; /* ขนาดตัวอักษร */
+}

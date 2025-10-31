@@ -1,0 +1,8 @@
+useEffect(() => {
+   // other code
+   ...
+
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []) 
+
+wordWrap: 'break-word'

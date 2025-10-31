@@ -1,0 +1,192 @@
+.modern-dialog {
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-dialog .p-dialog-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 1.5rem !important;
+    border-top-left-radius: 16px !important;
+    border-top-right-radius: 16px !important;
+}
+
+.modern-dialog .p-dialog-title {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+}
+
+.modern-dialog .p-dialog-content {
+    padding: 1.5rem !important;
+    background: #ffffff !important;
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.required-mark {
+    color: #dc3545;
+    font-size: 1rem;
+}
+
+.modern-input {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.modern-input:focus {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1) !important;
+    outline: none !important;
+}
+
+.modern-textarea {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    transition: all 0.3s ease !important;
+    resize: none !important;
+}
+
+.modern-textarea:focus {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1) !important;
+    outline: none !important;
+}
+
+/* Radio Button Styling */
+.radio-group {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.modern-radio .p-radiobutton {
+    width: 20px;
+    height: 20px;
+}
+
+.modern-radio .p-radiobutton .p-radiobutton-box {
+    border: 2px solid #e0e0e0;
+    background: #ffffff;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modern-radio .p-radiobutton .p-radiobutton-box.p-highlight {
+    border-color: #4CAF50;
+    background: #ffffff;
+}
+
+.modern-radio .p-radiobutton .p-radiobutton-box .p-radiobutton-icon {
+    width: 10px;
+    height: 10px;
+    transition-duration: 0.2s;
+    background-color: #4CAF50;
+    border-radius: 50%;
+}
+
+.modern-radio .p-radiobutton:not(.p-disabled) .p-radiobutton-box:hover {
+    border-color: #4CAF50;
+}
+
+.radio-label {
+    font-size: 0.875rem;
+    color: #495057;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+}
+
+.radio-option:hover .radio-label {
+    color: #4CAF50;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+    border-top: 1px solid #e9ecef;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.modern-cancel-button {
+    color: #6c757d !important;
+    background: transparent !important;
+    border: none !important;
+    /* padding: 0.75rem 1.5rem !important; */
+    transition: all 0.3s ease !important;
+}
+
+.modern-cancel-button:hover {
+    background: #f8f9fa !important;
+    color: #495057 !important;
+}
+
+.modern-submit-button {
+    background: #4CAF50 !important;
+    border: none !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.modern-submit-button:hover {
+    background: #43A047 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2) !important;
+}
+
+/* Placeholder styling */
+.modern-input::placeholder,
+.modern-textarea::placeholder {
+    color: #adb5bd;
+}
+
+/* Focus states */
+.modern-input:focus::placeholder,
+.modern-textarea:focus::placeholder {
+    color: #6c757d;
+} 

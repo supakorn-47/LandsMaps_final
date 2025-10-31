@@ -1,0 +1,257 @@
+[
+  {
+    "department_name_th": "กรมส่งเสริมปกครองท้องถิ่น (สถ.)",
+    "department_name_en": "Department of Local Administration (DLA)",
+    "service_rates": [
+      {
+        "service_name": "ข้อมูลรูปแปลงที่ดิน ตามเลขที่โฉนด",
+        "service_type": "SPATIAL",
+        "service_rate_amt": 51,
+        "service_request_qty": 75906,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 3871206,
+        "date": "2025-08-15"
+      },
+      {
+        "service_name": "ข้อมูลรูปแปลงที่ดิน ตามขอบเขต",
+        "service_type": "SPATIAL",
+        "service_rate_amt": 5,
+        "service_request_qty": 100000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 500000,
+        "date": "2025-07-20"
+      },
+      {
+        "service_name": "ข้อมูลรูปแปลงที่ดิน ตามเลขที่ดิน",
+        "service_type": "SPATIAL",
+        "service_rate_amt": 5,
+        "service_request_qty": 100000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 500000,
+        "date": "2025-06-18"
+      },
+      {
+        "service_name": "ข้อมูลรูปแปลงที่ดิน ตามระวาง",
+        "service_type": "SPATIAL",
+        "service_rate_amt": 5,
+        "service_request_qty": 100000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 500000,
+        "date": "2025-05-10"
+      },
+      {
+        "service_name": "ข้อมูลรูปแปลงที่ดิน , ข้อมูลเอกสารสิทธิที่ดิน (โฉนดที่ดิน)",
+        "service_type": "SPATIAL",
+        "service_rate_amt": 5,
+        "service_request_qty": 100000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 500000,
+        "date": "2025-04-25"
+      }
+    ]
+  },
+  {
+    "department_name_th": "บริษัทซีเอสไอ โปรเฟสชั่นนอล จํากัด (eService)",
+    "department_name_en": "CSI Professional Co., Ltd. (eService)",
+    "service_rates": [
+      {
+        "service_name": "ยืนยันตัวตน (verify identity)",
+        "service_type": "REST",
+        "service_rate_amt": 5,
+        "service_request_qty": 1000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 5000,
+        "date": "2025-08-15"
+      },
+      {
+        "service_name": "ข้อมูลเอกสารสิทธิที่ดิน (โฉนดที่ดิน)",
+        "service_type": "REST",
+        "service_rate_amt": 5,
+        "service_request_qty": 1000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 5000,
+        "date": "2025-07-22"
+      },
+      {
+        "service_name": "ข้อมูลทะเบียนราษฎร์",
+        "service_type": "REST",
+        "service_rate_amt": 5,
+        "service_request_qty": 2000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 10000,
+        "date": "2025-06-15"
+      },
+      {
+        "service_name": "ข้อมูลประวัติอาชญากรรม",
+        "service_type": "REST",
+        "service_rate_amt": 5,
+        "service_request_qty": 500,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 2500,
+        "date": "2025-05-10"
+      },
+      {
+        "service_name": "ข้อมูลทะเบียนพาณิชย์",
+        "service_type": "REST",
+        "service_rate_amt": 5,
+        "service_request_qty": 1500,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 7500,
+        "date": "2025-04-28"
+      }
+    ]
+  },
+  {
+    "department_name_th": "กรมการขนส่งทางบก",
+    "department_name_en": "Department of Land Transport (DLT)",
+    "service_rates": [
+      {
+        "service_name": "ข้อมูลทะเบียนรถยนต์",
+        "service_type": "REST",
+        "service_rate_amt": 10,
+        "service_request_qty": 50000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 500000,
+        "date": "2025-08-15"
+      },
+      {
+        "service_name": "ข้อมูลใบขับขี่",
+        "service_type": "REST",
+        "service_rate_amt": 10,
+        "service_request_qty": 45000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 450000,
+        "date": "2025-07-15"
+      },
+      {
+        "service_name": "ข้อมูลการจดทะเบียนรถใหม่",
+        "service_type": "REST",
+        "service_rate_amt": 10,
+        "service_request_qty": 30000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 300000,
+        "date": "2025-06-10"
+      },
+      {
+        "service_name": "ข้อมูลการต่อภาษีรถยนต์",
+        "service_type": "REST",
+        "service_rate_amt": 10,
+        "service_request_qty": 60000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 600000,
+        "date": "2025-05-05"
+      },
+      {
+        "service_name": "ข้อมูลการโอนกรรมสิทธิ์รถยนต์",
+        "service_type": "REST",
+        "service_rate_amt": 10,
+        "service_request_qty": 25000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 250000,
+        "date": "2025-04-20"
+      }
+    ]
+  },
+  {
+    "department_name_th": "กรมพัฒนาธุรกิจการค้า",
+    "department_name_en": "Department of Business Development (DBD)",
+    "service_rates": [
+      {
+        "service_name": "ข้อมูลนิติบุคคล",
+        "service_type": "REST",
+        "service_rate_amt": 50,
+        "service_request_qty": 15000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 750000,
+        "date": "2025-08-15"
+      },
+      {
+        "service_name": "ข้อมูลงบการเงิน",
+        "service_type": "REST",
+        "service_rate_amt": 100,
+        "service_request_qty": 5000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 500000,
+        "date": "2025-07-28"
+      },
+      {
+        "service_name": "ข้อมูลการจดทะเบียนจัดตั้งบริษัท",
+        "service_type": "REST",
+        "service_rate_amt": 50,
+        "service_request_qty": 8000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 400000,
+        "date": "2025-06-20"
+      },
+      {
+        "service_name": "ข้อมูลการจดทะเบียนห้างหุ้นส่วน",
+        "service_type": "REST",
+        "service_rate_amt": 50,
+        "service_request_qty": 4000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 200000,
+        "date": "2025-05-15"
+      },
+      {
+        "service_name": "ข้อมูลการเลิกกิจการ",
+        "service_type": "REST",
+        "service_rate_amt": 50,
+        "service_request_qty": 1500,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 75000,
+        "date": "2025-04-30"
+      }
+    ]
+  },
+  {
+    "department_name_th": "กรมสรรพากร",
+    "department_name_en": "Revenue Department (RD)",
+    "service_rates": [
+      {
+        "service_name": "ข้อมูลภาษีเงินได้บุคคลธรรมดา",
+        "service_type": "REST",
+        "service_rate_amt": 20,
+        "service_request_qty": 100000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 2000000,
+        "date": "2025-08-15"
+      },
+      {
+        "service_name": "ข้อมูลภาษีเงินได้นิติบุคคล",
+        "service_type": "REST",
+        "service_rate_amt": 20,
+        "service_request_qty": 50000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 1000000,
+        "date": "2025-07-10"
+      },
+      {
+        "service_name": "ข้อมูลภาษีมูลค่าเพิ่ม (VAT)",
+        "service_type": "REST",
+        "service_rate_amt": 20,
+        "service_request_qty": 80000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 1600000,
+        "date": "2025-06-05"
+      },
+      {
+        "service_name": "ข้อมูลภาษีธุรกิจเฉพาะ",
+        "service_type": "REST",
+        "service_rate_amt": 20,
+        "service_request_qty": 15000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 300000,
+        "date": "2025-05-01"
+      },
+      {
+        "service_name": "ข้อมูลภาษีป้าย",
+        "service_type": "REST",
+        "service_rate_amt": 20,
+        "service_request_qty": 10000,
+        "service_request_maxqty": 10000000,
+        "sum_service_rate_amt": 200000,
+        "date": "2025-04-22"
+      }
+    ]
+  }
+]

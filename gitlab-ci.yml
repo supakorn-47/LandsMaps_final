@@ -1,0 +1,29 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG != null
+#    - if: $CI_PIPELINE_SOURCE == 'push' && $CI_COMMIT_BRANCH == "deployment"
+
+stages:
+  - build
+
+services:
+  - name: docker:dind
+    command: ["--tls=false"]
+variables:
+  DOCKER_DRIVER: overlay
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: tcp://127.0.0.1:2375
+  PASSNEXUS: $PASSWORD
+  USERNEXUS: $USERNAME
+  VERSION: dummys
+
+build_image:
+  image: docker:stable
+  stage: build
+  script:
+    - if [ $CI_COMMIT_TAG != null ]; then VERSION=$CI_COMMIT_TAG; else VERSION=$CI_COMMIT_SHA; fi
+    - echo $VERSION
+    - docker login -u $USERNEXUS -p $PASSNEXUS https://pipr-uat-nexusrepos.dol.go.th/repository/docker-hosted
+    - docker build --no-cache --network=host -t pipr-uat-nexusrepos.dol.go.th/repository/docker-hosted/webadmin:$VERSION .
+    - docker push pipr-uat-nexusrepos.dol.go.th/repository/docker-hosted/webadmin:$VERSION
+

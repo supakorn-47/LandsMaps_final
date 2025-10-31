@@ -1,0 +1,244 @@
+.layout-topbar {
+  height: 56px;
+  padding: 0 1.5rem;
+  background: #0c68e9 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.menu-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.menu-button i {
+  color: white;
+  font-size: 1.2rem;
+}
+
+.page-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-title span {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+}
+
+.nav-button {
+  height: 36px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  transition: background-color 0.2s !important;
+}
+
+.nav-button:focus {
+  box-shadow: none !important;
+}
+
+.home-button {
+  /* width: 36px !important; */
+  /* padding: 0 !important; */
+  /* background: #fec114 !important; */
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.home-button:hover {
+  /* background: #fec114 !important; */
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.home-button .p-button-icon {
+  color: #424242;
+  font-size: 1.1rem;
+}
+
+.user-button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  padding: 0 0.75rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.user-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.user-button .p-button-icon,
+.user-button .pi-angle-down {
+  color: white;
+  font-size: 1rem;
+}
+
+.user-name {
+  color: white;
+  font-size: 0.9rem;
+  margin: 0 0.5rem;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-profile {
+  position: relative;
+}
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+  display: none;
+  animation: slideDown 0.2s ease;
+}
+
+.user-profile:focus-within .user-menu,
+.user-profile.active .user-menu {
+  display: block;
+}
+
+.user-info {
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-info .name {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.user-info .role {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.menu-items {
+  padding: 0.5rem;
+}
+
+.menu-item {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #666;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.menu-item:hover {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.menu-item i {
+  font-size: 1rem;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .layout-topbar {
+    padding: 0 1rem;
+  }
+
+  .page-title span {
+    font-size: 1rem;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .user-button {
+    padding: 0 !important;
+    width: 36px !important;
+  }
+
+  .user-button .pi-angle-down {
+    display: none;
+  }
+
+  .user-menu {
+    right: -1rem;
+  }
+  .home-button,
+  .user-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .home-button .p-button-label {
+    display: none;
+  }
+
+  .user-button .p-button-label {
+    display: none;
+  }
+  .home-button .p-button-icon-left {
+    margin-right: 0 !important;
+  }
+  .home-button {
+    width: 36px;
+    padding: 0.5rem !important;
+  }
+}

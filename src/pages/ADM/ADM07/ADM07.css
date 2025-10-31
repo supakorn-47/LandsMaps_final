@@ -1,0 +1,9 @@
+.__centerItem {
+    display: flex;
+    justify-content: center;
+}
+
+.__centerInline {
+    align-self: center;
+    margin-right: 5px;
+}

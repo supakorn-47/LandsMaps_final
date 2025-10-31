@@ -1,0 +1,23 @@
+body .p-dialog .p-dialog-header {
+  border-bottom: 0 none;
+  background: #d8d8d8;
+  color: #495749;
+  padding: 1.5rem;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  padding-left: 15px;
+  padding-right: 6px;
+  padding-bottom: 6px;
+  padding-top: 6px;
+  /* height: 50px; */
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+body .p-dialog .p-dialog-footer {
+  text-align: center;
+}
+
+body .p-dialog .p-dialog-footer {
+  padding: 1.5rem;
+}

@@ -1,0 +1,26 @@
+.page-header {
+  min-height: auto;
+  &-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    &-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    &-subtitle {
+    }
+    &-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      flex: 1;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    &-right {
+      flex: none;
+    }
+  }
+}

@@ -1,0 +1,73 @@
+.agency-container {
+  padding: 0px 16px 16px 16px !important;
+}
+.title {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.subtitle {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.agency-card {
+  padding: 1.5rem;
+}
+
+.agency-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.top-agency {
+  text-align: right;
+  font-size: 0.9rem;
+}
+.text {
+  padding: 0;
+}
+.chart-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.chart-box {
+  flex: 1;
+  min-width: 300px;
+}
+
+.legend-box {
+  width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.legend-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.legend-count {
+  font-size: 0.8rem;
+  color: #666;
+}

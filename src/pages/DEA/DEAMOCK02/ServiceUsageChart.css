@@ -1,0 +1,10 @@
+.usage-chart-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+}
+
+.card-description {
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}

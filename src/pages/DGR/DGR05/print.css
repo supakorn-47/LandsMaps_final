@@ -1,0 +1,24 @@
+@media print {
+  /* เมื่อพิมพ์ให้กราฟอยู่ตรงกลางและขนาดเล็กลง */
+  .chart-container {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .chart-item {
+    display: inline-block;
+    width: 100%;
+    max-width: 400px; /* กำหนดขนาดกราฟให้เล็กลง */
+    margin-bottom: 20px;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    text-align: center;
+  }
+
+  .p-button-info {
+    display: none; /* ซ่อนปุ่มพิมพ์ในตอนพิมพ์ */
+  }
+}

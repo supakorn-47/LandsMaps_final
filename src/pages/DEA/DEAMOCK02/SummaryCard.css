@@ -1,0 +1,64 @@
+.summary-card {
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.summary-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 0.6rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+}
+
+.pi-icon {
+  font-size: 1rem;
+  color: #fff;
+}
+.summary-text {
+  flex: 1;
+}
+
+.summary-title {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.summary-value {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin: 0.25rem 0;
+}
+
+.summary-description {
+  font-size: 0.7rem;
+  color: #adb5bd;
+}
+
+.p-card {
+  padding: 0;
+}
+/* ยังคงใช้ bg-blue, bg-green, bg-emerald, bg-purple เหมือนเดิม */
+
+/* สีไอคอน */
+.bg-blue {
+  background-color: #2196f3;
+}
+
+.bg-green {
+  background-color: #4caf50;
+}
+
+.bg-emerald {
+  background-color: #2ecc71;
+}
+
+.bg-purple {
+  background-color: #9c27b0;
+}

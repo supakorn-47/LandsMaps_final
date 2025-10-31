@@ -1,0 +1,8 @@
+.__displayItem {
+  display: flex;
+  justify-content: space-between;
+}
+
+.__widthItem {
+  width: -webkit-fill-available;
+}
