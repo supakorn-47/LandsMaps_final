@@ -12,7 +12,7 @@ export default function LPADM03npSearch({ searchData, setSearchData, onSearch })
         <label>วันที่ประกาศ</label>
         <Calendars
           maxDate={searchData.otp_dtm_from}
-          value={searchData.otp_dtm_from}
+          value={searchData.otp_dtm_fro?? new Date()}
           dateFormat={"dd/mm/yy"}
           showIcon
           onChange={(e) =>
@@ -25,13 +25,14 @@ export default function LPADM03npSearch({ searchData, setSearchData, onSearch })
         <Calendars
           maxDate={new Date()}
           minDate={searchData.otp_dtm_from}
-          value={searchData.otp_dtm_to}
+          value={searchData.otp_dtm_to?? new Date()}
           dateFormat={"dd/mm/yy"}
           showIcon
           onChange={(e) =>
             setSearchData({ ...searchData, otp_dtm_to: e.value })
           }
         />
+        
       </div>
       <div className="p-field p-col-12" style={{ marginTop: "1rem" }}>
         <Button

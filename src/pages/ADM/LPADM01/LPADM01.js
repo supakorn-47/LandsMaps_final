@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Toast } from "primereact/toast";
 import { Loading } from "../../../components/Loading/Loading";
-import { DialogConfirm, DialogDelete } from "../../../components/DialogService/DialogService";
+import {
+  DialogConfirm,
+  DialogDelete,
+} from "../../../components/DialogService/DialogService";
 import { FooterButtonCenter } from "../../../components/FooterButton/FooterButton";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
@@ -12,7 +15,7 @@ import PageHeader from "../../../components/PageHeader/PageHeader";
 import LPADM01Search from "./LPADM01Search";
 import LPADM01List from "./LPADM01List";
 import LPADM01Dialog from "./LPADM01Dialog";
-import LPADM01Services from "../../../service/ServiceADM/ServiceLPADM01"; // ✅ ใช้ Service ใหม่ตรง Swagger
+import LPADM01Services from "../../../service/ServiceADM/ServiceLPADM01";
 import * as FileSaver from "file-saver";
 import XLSX from "tempa-xlsx";
 import { URL_API_EXPORT } from "../../../service/Config";
@@ -40,26 +43,25 @@ export default function LPADM01() {
     rowofpage: 10000,
   });
 
-
   const onLPADM01GetDataList = async () => {
     setLoading(true);
     try {
       const res = await LPADM01Services.LPADM01GetDataList(searchData);
-      if (res.status === 200) {
-        setDataTable(res.result);
-        setDataTableReport(res.result);
-        setTotalRecords(res.totalRecords);
+      if (res?.status === 200 || res?.result) {
+        setDataTable(res.result || []);
+        setTotalRecords(res.totalRecords || 0);
       } else {
-        showMessages("warn", "ไม่พบข้อมูล", res.errors?.message);
+        showMessages("warn", "ไม่พบข้อมูล", res.errors?.message || "");
       }
     } catch (err) {
+      console.error("[onLPADM01GetDataList] Error:", err);
       showMessages("error", "เกิดข้อผิดพลาด", err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ อนุมัติผู้ใช้งาน (ใช้ /ApproveUserData)
+  // ✅ อนุมัติผู้ใช้งาน
   const onApproveUser = async (rowData) => {
     try {
       setLoading(true);
@@ -79,14 +81,15 @@ export default function LPADM01() {
       setLoading(false);
     }
   };
-
-  // ✅ ลบไฟล์แนบผู้ใช้งาน (ใช้ /DeleteRegisterFile)
-  const onLPADM01DeleteData = async (register_seq) => {
+  const onLPADM01DeleteData = async (rowData) => {
     try {
       setLoading(true);
-      const res = await LPADM01Services.LPADM01DeleteRegisterFile(register_seq);
+      // ✅ ต้องส่ง register_file_seq ไม่ใช่ register_seq
+      const res = await LPADM01Services.LPADM01DeleteRegisterFile(
+        rowData.register_file_seq
+      );
       if (res.status === 200) {
-        showMessages("success", "สำเร็จ", "ลบข้อมูลสำเร็จ");
+        showMessages("success", "สำเร็จ", "ลบไฟล์แนบสำเร็จ");
         onLPADM01GetDataList();
       } else {
         showMessages("error", "เกิดข้อผิดพลาด", res.errors?.message);
@@ -99,15 +102,19 @@ export default function LPADM01() {
     }
   };
 
-  // ✅ แสดงรายการไฟล์แนบ (ใช้ /GetRegisterFileList)
-  const onGetFileList = async () => {
+  // ✅ แสดงรายการไฟล์แนบ
+  const onGetFileList = async (rowData) => {
     setLoading(true);
     try {
-      const res = await LPADM01Services.LPADM01GetRegisterFileList();
+      // ✅ ต้องส่ง register_seq ให้ API
+      const res = await LPADM01Services.LPADM01GetRegisterFileList(
+        rowData.register_seq
+      );
       if (res.status === 200) {
         console.log("File list:", res.result);
+        showMessages("info", "โหลดข้อมูลไฟล์สำเร็จ", "");
       } else {
-        showMessages("warn", "ไม่พบข้อมูลไฟล์แนบ", "");
+        showMessages("warn", "ไม่พบข้อมูลไฟล์แนบ", res.errors?.message || "");
       }
     } catch (err) {
       showMessages("error", "เกิดข้อผิดพลาด", err.message);
@@ -116,13 +123,12 @@ export default function LPADM01() {
     }
   };
 
-  // ✅ ส่งอีเมลแจ้งผู้ใช้ (ใช้ /SendMail)
+  // ✅ ส่งอีเมล
   const onSendMail = async (rowData) => {
     setLoading(true);
     try {
-      const res = await LPADM01Services.LPADM01SendMail({
-        register_seq: rowData.register_seq,
-      });
+      // ✅ API ต้องการ email เป็น query param
+      const res = await LPADM01Services.LPADM01SendMail(rowData.email);
       if (res.status === 200) {
         showMessages("success", "ส่งอีเมลสำเร็จ", "");
       } else {
@@ -172,7 +178,7 @@ export default function LPADM01() {
         title={
           <PageHeader
             config={{
-              title: "อนุมัติผู้ใช้งาน (LPADM01)",
+              title: "อนุมัติผู้ใช้งาน ",
               actionButton: (
                 <div>
                   <Button

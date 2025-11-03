@@ -64,6 +64,8 @@ const App = (props) => {
   const onLoginClick = () => {
     if (username === "" || password === "") {
       showMessages("warn", `แจ้งเตือน`, "กรุณาระบุข้อมูลให้ถูกต้อง");
+   ;
+      
     } else {
       getLoginService();
       //  window.location = "#/portal";
@@ -123,6 +125,7 @@ const getLoginService = async () => {
         username: username,
         password: password,
       });
+      
       console.log("getLoginService resp :", resp);
 
       if (resp?.token) {

@@ -1,5 +1,5 @@
 {
-  "name": "dol.landsmapsplatform.webadmin",
+  "name": "LanssMaps",
   "version": "1.0.0",
   "homepage": ".",
   "private": true,
@@ -24,6 +24,9 @@
     "express-fileupload": "^1.2.0",
     "file-saver": "^2.0.5",
     "fs": "0.0.1-security",
+    "highcharts": "^12.4.0",
+    "highcharts-react-official": "^3.2.3",
+    "http-proxy-middleware": "^2.0.9",
     "jquery": "^3.7.1",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
@@ -60,7 +63,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://100.65.4.47:7293",
+  "proxy": "https://100.123.134.37:7293",
   "eslintConfig": {
     "extends": [
       "react-app"

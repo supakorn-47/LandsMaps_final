@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { Calendar } from "primereact/calendar";
-import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 
-export default function LPADM04Dialog({ dialog = {}, setDialog }) {
+export default function LPADM04Dialog({ dialog = {}, setDialog, submitForm }) {
   const [formData, setFormData] = useState({
     createdDate: null,
     startDate: null,
@@ -15,8 +14,31 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
     remark: "",
   });
 
+  useEffect(() => {
+    if (dialog?.data && dialog.action === "แก้ไข") {
+      const d = dialog.data;
+      setFormData({
+        createdDate: d.form_date ? new Date(d.form_date) : null,
+        startDate: d.form_start_date ? new Date(d.form_start_date) : null,
+        endDate: d.form_finish_date ? new Date(d.form_finish_date) : null,
+        title_th: d.form_name_th || "",
+        title_en: d.form_name_en || "",
+        remark: d.form_remark || "",
+      });
+    } else if (dialog.action === "บันทึก") {
+      setFormData({
+        createdDate: null,
+        startDate: null,
+        endDate: null,
+        title_th: "",
+        title_en: "",
+        remark: "",
+      });
+    }
+  }, [dialog]);
+
   const onChange = (key, value) => {
-    setFormData({ ...formData, [key]: value });
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const renderFooter = () => (
@@ -30,18 +52,19 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
       <Button
         label="บันทึก"
         icon="pi pi-check"
-        onClick={() => {
-          console.log("บันทึกข้อมูล: ", formData);
-          setDialog({ dialog: false, action: "", data: null });
-        }}
-        className=" p-button-info"
+        onClick={() => submitForm(formData)}
+        className="p-button-info"
       />
     </div>
   );
 
   return (
     <Dialog
-      header="เพิ่มแบบสำรวจความพึงพอใจ"
+      header={
+        dialog.action === "แก้ไข"
+          ? "แก้ไขแบบสำรวจความพึงพอใจ"
+          : "เพิ่มแบบสำรวจความพึงพอใจ"
+      }
       visible={dialog?.dialog ?? false}
       style={{ width: "50vw" }}
       footer={renderFooter()}
@@ -50,7 +73,6 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
       className="p-fluid"
     >
       <div className="p-formgrid p-grid">
-        {/* วันที่สร้าง (ซ้าย) */}
         <div className="p-field p-col-12 p-md-6">
           <label>
             วันที่สร้างแบบสำรวจ <span style={{ color: "red" }}>*</span>
@@ -61,8 +83,6 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
             showIcon
           />
         </div>
-
-        {/* วันที่สิ้นสุด (ขวา) */}
         <div className="p-field p-col-12 p-md-6">
           <label>
             วันที่สิ้นสุดสำรวจ <span style={{ color: "red" }}>*</span>
@@ -73,8 +93,6 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
             showIcon
           />
         </div>
-
-        {/* วันที่เริ่มต้น (ซ้าย) */}
         <div className="p-field p-col-12 p-md-6">
           <label>
             วันที่เริ่มต้นสำรวจ <span style={{ color: "red" }}>*</span>
@@ -85,11 +103,7 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
             showIcon
           />
         </div>
-
-        {/* ช่องว่าง (ขวาเว้นไว้) */}
         <div className="p-field p-col-12 p-md-6"></div>
-
-        {/* หัวข้อไทย (ซ้าย) */}
         <div className="p-field p-col-12 p-md-6">
           <label>
             หัวข้อแบบสำรวจ (ภาษาไทย) <span style={{ color: "red" }}>*</span>
@@ -101,21 +115,17 @@ export default function LPADM04Dialog({ dialog = {}, setDialog }) {
             style={{ height: "70px", resize: "none" }}
           />
         </div>
-
-        {/* หัวข้ออังกฤษ (ขวา) */}
         <div className="p-field p-col-12 p-md-6">
           <label>
             หัวข้อแบบสำรวจ (ภาษาอังกฤษ) <span style={{ color: "red" }}>*</span>
           </label>
           <InputTextarea
             rows={5}
-            value={formData.title_th}
-            onChange={(e) => onChange("title_th", e.target.value)}
+            value={formData.title_en}
+            onChange={(e) => onChange("title_en", e.target.value)}
             style={{ height: "70px", resize: "none" }}
           />
         </div>
-
-        {/* หมายเหตุ (เต็มบรรทัด) */}
         <div className="p-field p-col-12">
           <label>หมายเหตุแบบสำรวจ</label>
           <InputTextarea

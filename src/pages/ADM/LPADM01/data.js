@@ -32,7 +32,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:00:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด กรุงเทพฯ",
     province_name: "กรุงเทพมหานคร",
-    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด"
+    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด",
   },
   {
     register_seq: 37022,
@@ -67,7 +67,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:05:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด ชลบุรี",
     province_name: "ชลบุรี",
-    register_type_name: "จนท. (อปท.) - รับข้อมูลมาตรา 10"
+    register_type_name: "จนท. (อปท.) - รับข้อมูลมาตรา 10",
   },
   {
     register_seq: 37023,
@@ -102,7 +102,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:10:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด ขอนแก่น",
     province_name: "ขอนแก่น",
-    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด"
+    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด",
   },
   {
     register_seq: 37024,
@@ -137,7 +137,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:15:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด สงขลา",
     province_name: "สงขลา",
-    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด"
+    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด",
   },
   {
     register_seq: 37025,
@@ -172,7 +172,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:20:00",
     landoffice_name: "องค์การบริหารส่วนตำบล ทุ่งกว๋าว",
     province_name: "ลำปาง",
-    register_type_name: "จนท. (อปท.) - รับข้อมูลมาตรา 10"
+    register_type_name: "จนท. (อปท.) - รับข้อมูลมาตรา 10",
   },
   {
     register_seq: 37026,
@@ -207,7 +207,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:25:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด สระแก้ว",
     province_name: "สระแก้ว",
-    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด"
+    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด",
   },
   {
     register_seq: 37027,
@@ -242,7 +242,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:30:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด พังงา",
     province_name: "พังงา",
-    register_type_name: "จนท. (อปท.) - รับข้อมูลมาตรา 10"
+    register_type_name: "จนท. (อปท.) - รับข้อมูลมาตรา 10",
   },
   {
     register_seq: 37028,
@@ -277,7 +277,7 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:35:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด ภูเก็ต",
     province_name: "ภูเก็ต",
-    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด"
+    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด",
   },
   {
     register_seq: 37029,
@@ -312,6 +312,6 @@ export const dataList = [
     last_upd_dtm: "2025-01-20T10:00:00",
     landoffice_name: "องค์การบริหารส่วนจังหวัด กรุงเทพฯ",
     province_name: "กรุงเทพมหานคร",
-    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด"
+    register_type_name: "จนท. (อปท.) - เเจ้งข้อผิดพลาด",
   },
 ];

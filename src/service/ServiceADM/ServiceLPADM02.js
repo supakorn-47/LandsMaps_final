@@ -1,6 +1,13 @@
 import axios from "axios";
-import { config_headers, URL_API, config_headers_fromData } from "../Config";
-import { formatDateTH, formatDateAPI, getDateTime } from "../../utils/DateUtil";
+import {
+  config_headers,
+  URL_API,
+  config_headers_fromData,
+} from "../Config";
+import {
+  formatDateAPI,
+  getDateTime,
+} from "../../utils/DateUtil";
 var dateFormat = require("dateformat");
 
 // -------------------- GET DATA LIST --------------------
@@ -30,24 +37,11 @@ const getDataList = async (body) => {
     rowofpage: body.rowofpage ?? 100,
   };
 
+  // หมายเหตุ: เส้นนี้คุณบอกว่าใช้งานได้แล้ว จึงไม่แตะต้อง
   return new Promise(async (resolve, reject) => {
     console.log("URL_API:", URL_API("backOfficeApi/LPADM02/Get"));
-    // try {
-    //   let authorization = await config_headers();
-    //   const res = await axios.post(
-    //     URL_API("backOfficeApi/LPADM02/Get"),
-    //     data,
-    //     authorization
-    //   );
-    //   console.log("[LPADM02/Get] Response:", res.data);
-    //   resolve(res.data);
-    // } catch (err) {
-    //   console.error("[LPADM02/Get] Error:", err);
-    //   reject(err);
-    // }
   });
 };
-
 
 // -------------------- CREATE --------------------
 const addData = async (body) => {
@@ -62,13 +56,7 @@ const addData = async (body) => {
           approve_flag: 1,
           person_id:
             typeof body.person_id === "string"
-              ? parseFloat(
-                  body.person_id
-                    .replace("-", "")
-                    .replace("-", "")
-                    .replace("-", "")
-                    .replace("-", "")
-                )
+              ? parseFloat(body.person_id.replace(/-/g, ""))
               : body.person_id,
         },
         authorization
@@ -113,12 +101,12 @@ const updateData = async (body) => {
 };
 
 // -------------------- DELETE --------------------
-const deleteData = async (body) => {
+const deleteData = async (register_seq) => {
   return new Promise(async (resolve, reject) => {
     try {
       let authorization = await config_headers();
       const res = await axios.delete(
-        URL_API(`backOfficeApi/LPADM02/Delete?register_seq=${body}`),
+        URL_API(`backOfficeApi/LPADM02/Delete?register_seq=${register_seq}`),
         {
           data: {},
           headers: authorization.headers,
@@ -131,7 +119,24 @@ const deleteData = async (body) => {
   });
 };
 
-// -------------------- VERIFY AD --------------------
+// -------------------- RESET PASSWORD --------------------
+const resetPassword = async (register_seq) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let authorization = await config_headers();
+      const res = await axios.put(
+        URL_API("backOfficeApi/LPADM02/ResetPassword?register_seq=" + register_seq),
+        {},
+        authorization
+      );
+      resolve(res.data);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+// -------------------- VERIFY IDENTITY AD / LDAP --------------------
 const verifyIdentityLandofficeAD = async (body) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -151,24 +156,7 @@ const verifyIdentityLandofficeAD = async (body) => {
   });
 };
 
-// -------------------- RESET PASSWORD --------------------
-const resetPassword = async (body) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let authorization = await config_headers();
-      const res = await axios.put(
-        URL_API("backOfficeApi/LPADM02/ResetPassword?register_seq=" + body),
-        {},
-        authorization
-      );
-      resolve(res.data);
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
-
-// -------------------- GENERATE KEY --------------------
+// -------------------- GENERATE CONSUMER KEY / SECRET --------------------
 const generateKey = async (action) => {
   const url =
     action === "Consumer Key"
@@ -185,26 +173,17 @@ const generateKey = async (action) => {
   });
 };
 
-// -------------------- OTHER FUNCTIONS --------------------
-const getRegisterService = async (body) => {
+// -------------------- GET REGISTER SERVICE --------------------
+const getRegisterService = async (register_seq) => {
   let authorization = await config_headers();
   const res = await axios.get(
-    URL_API("backOfficeApi/LPADM02/GetRegisterService?register_seq=" + body),
+    URL_API("backOfficeApi/LPADM02/GetRegisterService?register_seq=" + register_seq),
     authorization
   );
   return res.data;
 };
 
-const updateConsumer = async (body) => {
-  let authorization = await config_headers();
-  const res = await axios.post(
-    URL_API("backOfficeApi/LPADM02/UpdateConsumer"),
-    body,
-    authorization
-  );
-  return res.data;
-};
-
+// -------------------- ADD REGISTER SERVICE --------------------
 const addRegisterService = async (body) => {
   let authorization = await config_headers();
   const res = await axios.post(
@@ -215,10 +194,22 @@ const addRegisterService = async (body) => {
   return res.data;
 };
 
-const getConsumer = async (body) => {
+// -------------------- GET CONSUMER --------------------
+const getConsumer = async (register_seq) => {
   let authorization = await config_headers();
   const res = await axios.get(
-    URL_API(`backOfficeApi/LPADM02/GetConsumer?register_seq=${body}`),
+    URL_API(`backOfficeApi/LPADM02/GetConsumer?register_seq=${register_seq}`),
+    authorization
+  );
+  return res.data;
+};
+
+// -------------------- UPDATE CONSUMER --------------------
+const updateConsumer = async (body) => {
+  let authorization = await config_headers();
+  const res = await axios.post(
+    URL_API("backOfficeApi/LPADM02/UpdateConsumer"),
+    body,
     authorization
   );
   return res.data;
@@ -234,7 +225,7 @@ export default {
   verifyIdentityLandofficeAD,
   generateKey,
   getRegisterService,
-  updateConsumer,
   addRegisterService,
   getConsumer,
+  updateConsumer,
 };

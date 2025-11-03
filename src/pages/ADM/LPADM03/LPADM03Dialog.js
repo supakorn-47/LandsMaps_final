@@ -1,746 +1,396 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
+import { Calendar } from "primereact/calendar";
 import { Dropdown } from "primereact/dropdown";
-import { Calendars } from "../../../components/Calendar/Calendar";
-import { validateInputText } from "../../../utils/ValidateUtil";
-import { ListBox } from "primereact/listbox";
-import { Galleria } from "primereact/galleria";
-import { TabView, TabPanel } from "primereact/tabview";
 import { Editor } from "primereact/editor";
+import { Dialog } from "primereact/dialog";
+import { Toast } from "primereact/toast";
+import { formatDateTH } from "../../../utils/DateUtil";
+import LPADM03Services from "../../../service/ServiceADM/ServiceLPADM03";
+import { Loading } from "../../../components/Loading/Loading";
 
-export default function ADM06Dialog({
-  dialog,
-  setDialog,
-  submitForm,
-  submitted,
-  showMessages,
-  arrFile,
-  setArrFile,
-  arrImg,
-  setArrImg,
-  setPopupViewFile,
-  setDeleteDialog,
-  annouceType,
-}) {
-  const [selectedTable, setSelectedTable] = useState([]);
-  const [formObject, setformObject] = useState({});
-  const [size, setSize] = useState(50);
+export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
+  const toast = useRef(null);
+  const [globalFilter, setGlobalFilter] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    if (dialog.dialog === true && dialog.action === "แก้ไข") {
-      // console.log('dialog.data', dialog.data)
-      setformObject(dialog.data);
-    } else {
-      let _getDateTime = new Date();
-      _getDateTime.setHours(0, 0, 0, 0);
-      setformObject({
-        announce_seq: 0,
-        announce_date: new Date(),
-        announce_start_date: _getDateTime,
-        announce_finish_date: new Date(),
-        announce_title_th: "",
-        announce_title_en: "",
-        announce_desc_th: "",
-        announce_desc_en: "",
-        announce_attach: "",
-        announce_type: "-1",
-      });
-    }
-  }, [dialog.data]);
+  const [dialog, setDialog] = useState({
+    open: false,
+    action: "เพิ่ม",
+    data: null,
+  });
 
-  useEffect(() => {
-    if (size > 100) {
-      setSize(100);
-    } else if (size < 25) {
-      setSize(25);
-    }
-  }, [size]);
+  const [formData, setFormData] = useState({
+    announce_date: null,
+    announce_start: null,
+    announce_end: null,
+    announce_type: null,
+    title_th: "",
+    title_en: "",
+    detail_th: "",
+    detail_en: "",
+    link: "",
+  });
 
-  useEffect(() => {
-    if (dialog.dialogLayer == true) {
-      let arr_Temp = [];
-      dialog.data.usergrouplayer_list.forEach((element) => {
-        console.log("element", element);
-        if (element.ischecked === "1") {
-          arr_Temp.push(element);
-        }
-      });
-      setSelectedTable(arr_Temp);
-    }
-  }, [dialog.dialogLayer]);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [pdfFiles, setPdfFiles] = useState([]);
 
-  const renderFooter = () => {
-    return (
-      <div className="dialog-footer-action-right">
-        <Button
-          label="ยกเลิก"
-          icon="pi pi-times"
-          onClick={() => setDialog(false)}
-          className="p-button-secondary p-button-rounded"
-          //   style={{ backgroundColor: "rgb(167 172 175)", color: "#ffffff" }}
-        />
-        <Button
-          label="บันทึก"
-          // label={dialog.action}
-          icon="pi pi-check"
-          onClick={() => submitForm(formObject, arrFile, arrImg)}
-          autoFocus
-          className="p-button-rounded p-button-info"
-        />
-      </div>
-    );
-  };
-
-  const renderFooter2 = () => {
-    return (
-      <div className="dialog-footer-action-right">
-        <Button
-          label="ปิดหน้าต่าง"
-          icon="pi pi-times"
-          onClick={() => setDialog(false)}
-          className="p-button-secondary p-button-rounded"
-        />
-      </div>
-    );
-  };
-
-  const popupViewFile = () => {
-    if (dialog.viewImage === undefined || dialog.viewPDF === undefined) return;
-    const itemTemplate = (item) => {
-      return (
-        <img
-          src={item.announce_file_path}
-          onError={(e) =>
-            (e.target.src =
-              "https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png")
-          }
-          alt={"dds"}
-          style={{
-            maxWidth: "60%",
-            display: "block",
-            minWidth: "60%",
-            height: "400px",
-            maxHeight: "500px",
-          }}
-        />
-      );
-    };
-
-    return (
-      <Dialog
-        header={dialog.action}
-        visible={dialog.dialogViewImage}
-        style={{ width: "60vw" }}
-        footer={renderFooter2()}
-        onHide={() => setDialog(false)}
-        blockScroll={true}
-        className="p-fluid"
-        maximizable={true}
-      >
-        <div className="grid">
-          <TabView>
-            <TabPanel
-              header={`ไฟล์รูปภาพ ( ${dialog.viewImage.length} )`}
-              disabled={dialog.viewImage.length === 0}
-            >
-              <Galleria
-                value={dialog.viewImage}
-                responsiveOptions={[
-                  {
-                    breakpoint: "1024px",
-                    numVisible: 5,
-                  },
-                  {
-                    breakpoint: "768px",
-                    numVisible: 3,
-                  },
-                  {
-                    breakpoint: "560px",
-                    numVisible: 1,
-                  },
-                ]}
-                numVisible={5}
-                showThumbnails={false}
-                showIndicators
-                item={itemTemplate}
-              />
-            </TabPanel>
-            <TabPanel
-              header={`ไฟล์เอกสาร ( ${dialog.viewPDF.length} )`}
-              disabled={dialog.viewPDF.length === 0}
-            >
-              {/* <div style={{ marginBottom: 30, marginTop: 20 }}>
-                                {
-                                    dialog.viewPDF.map((list, index) => {
-                                        return (
-                                            <div className="p-col-6">
-                                                <Button
-                                                    className="p-button-link"
-                                                    label={`${index + 1}. ${list.announce_file_path.replace('http://sitdev.dyndns.org:9121/apiWebAdmin/Upload/Announce/', '')}`}
-                                                    onClick={() => setPopupViewFile({ open: true, linkURL: list.announce_file_path })}
-                                                    tooltip={`คลิกที่นี่เพื่อดูไฟล์ PDF`}
-                                                    tooltipOptions={{ position: 'bottom' }}
-                                                />
-                                            </div>
-                                        )
-                                    })
-                                }
-                            </div> */}
-              {dialog.viewPDF.map((list, index) => {
-                return (
-                  <div style={{ marginTop: "15px" }}>
-                    <a
-                      onClick={() =>
-                        setPopupViewFile({
-                          open: true,
-                          linkURL: list.announce_file_path,
-                        })
-                      }
-                      style={{ cursor: "pointer" }}
-                    >{`${index + 1}. ${list.announce_file_name}`}</a>
-                  </div>
-                );
-              })}
-            </TabPanel>
-          </TabView>
-        </div>
-      </Dialog>
-    );
-  };
-
-  const onHide = () => {
-    setDialog(false);
-    setformObject({});
-  };
-
-  const onChangefile = (e, index, _EVENT) => {
-    if (e.target.files[0] === undefined) return;
-    if (_EVENT === "IMG") {
-      if (e.target.files[0].size > 5242880) {
-        showMessages("warn", `แจ้งเตือน`, `ขนาดไม่เกิน 5MB`);
-        document.getElementById(`_uploadIMG_${index + 1}`).value = "";
-        return;
-      }
-      if (
-        e.target.files[0].type !== "image/jpeg" &&
-        e.target.files[0].type !== "image/png"
-      ) {
-        showMessages(
-          "error",
-          `กรุณาตรวจสอบ`,
-          "ไฟล์ภาพเฉพาะนามสกุล .png, .jpeg เท่านั้น"
-        );
-        document.getElementById(`_uploadIMG_${index + 1}`).value = "";
-        return;
-      } else {
-        let temp = arrImg;
-        temp[index] = e.target.files[0];
-        setArrImg(temp);
-      }
-    } else if (_EVENT === "FILE") {
-      if (e.target.files[0].size > 5242880) {
-        showMessages("warn", `แจ้งเตือน`, `ขนาดไม่เกิน 5MB`);
-        document.getElementById(`_uploadFILE_${index + 1}`).value = "";
-        return;
-      }
-      if (e.target.files[0].type !== "application/pdf") {
-        showMessages(
-          "error",
-          `กรุณาตรวจสอบ`,
-          "ไฟล์แนบเฉพาะนามสกุล .pdf เท่านั้น"
-        );
-        document.getElementById(`_uploadFILE_${index + 1}`).value = "";
-        return;
-      } else {
-        let temp = arrFile;
-        temp[index] = e.target.files[0];
-        setArrFile(temp);
-      }
-    }
-  };
-
-  const onAddFileClick = (_E) => {
-    if (_E === "FILE") {
-      let temp = arrFile;
-      temp.push({ file: "" });
-      setArrFile(temp);
-    } else if (_E === "IMG") {
-      let temp = arrImg;
-      temp.push({ file: "" });
-      setArrImg(temp);
-    }
-  };
-
-  const removeArrFile = (list, index, _EVENT) => {
-    if (_EVENT === "FILE") {
-      if (list.announce_file_path !== undefined) {
-        setDeleteDialog({
-          open: true,
-          data: list,
-          onClickDelete: "FILE",
-          indexDelete: index,
-        });
-      } else {
-        arrFile.splice(index, 1);
-      }
-    } else if (_EVENT === "IMG") {
-      if (list.announce_file_path !== undefined) {
-        setDeleteDialog({
-          open: true,
-          data: list,
-          onClickDelete: "FILE",
-          indexDelete: index,
-        });
-      } else {
-        arrImg.splice(index, 1);
-      }
-    }
-  };
-
-  const editorHeader = <div></div>;
-
-  var toolbarOptions = [
-    ["bold", "italic", "underline"],
-    // [{ 'size': ['`small`', false, 'large', 'huge'] }],
-    [{ color: [] }, { background: [] }],
-    // [{ 'list': 'ordered' }],
-    ["clean"],
+  const types = [
+    { label: "ข่าวกรมที่ดิน", value: "ข่าวกรมที่ดิน" },
+    { label: "ข่าว LandsMaps Platform", value: "ข่าว LandsMaps Platform" },
+    { label: "ข่าว อปท.", value: "ข่าว อปท." },
   ];
+
+  const showMsg = (severity, summary, detail) => {
+    toast.current.show({ severity, summary, detail, life: 4000 });
+  };
+
+  const handleChange = (field, value) =>
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+  const validateField = (value) => submitted && !value;
+
+  const openEditDialog = (rowData) => {
+    const toDate = (v) => (v ? new Date(v) : null);
+    setFormData({
+      announce_date: toDate(rowData.announce_date),
+      announce_start: toDate(rowData.announce_start_date),
+      announce_end: toDate(rowData.announce_finish_date),
+      announce_type: rowData.announce_type || null,
+      title_th: rowData.announce_title_th || "",
+      title_en: rowData.announce_title_en || "",
+      detail_th: rowData.announce_desc_th || "",
+      detail_en: rowData.announce_desc_en || "",
+      link: rowData.announce_url || "",
+    });
+    setDialog({ open: true, action: "แก้ไข", data: rowData });
+  };
+
+  const handleCancel = () =>
+    setDialog({ open: false, action: "เพิ่ม", data: null });
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      setSubmitted(true);
+
+      const requiredFields = [
+        "announce_date",
+        "announce_start",
+        "announce_end",
+        "announce_type",
+        "title_th",
+        "title_en",
+        "detail_th",
+        "detail_en",
+      ];
+      const invalid = requiredFields.some((f) => !formData[f]);
+      if (invalid) return;
+      if (formData.announce_end < formData.announce_start) return;
+
+      const payload = {
+        announce_seq: dialog.data?.announce_seq,
+        announce_start_date: formData.announce_start,
+        announce_finish_date: formData.announce_end,
+        announce_title_th: formData.title_th,
+        announce_title_en: formData.title_en,
+        announce_desc_th: formData.detail_th,
+        announce_desc_en: formData.detail_en,
+        announce_url: formData.link,
+        announce_type: formData.announce_type,
+        record_status: "A",
+        files: [...imageFiles, ...pdfFiles],
+      };
+
+      let res;
+      if (dialog.action === "แก้ไข") {
+        res = await LPADM03Services.UpdateData(payload);
+        showMsg("success", "สำเร็จ", "แก้ไขข่าวประกาศเรียบร้อยแล้ว");
+      } else {
+        res = await LPADM03Services.AddData(payload);
+        showMsg("success", "สำเร็จ", "เพิ่มข่าวประกาศเรียบร้อยแล้ว");
+      }
+
+      if (res?.status === 200) {
+        await onRefresh();
+        setDialog({ open: false, action: "เพิ่ม", data: null });
+      }
+    } catch (err) {
+      showMsg(
+        "error",
+        "เกิดข้อผิดพลาด",
+        err?.response?.data?.message || err.message
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const header = (
+    <div className="table-header">
+      <div className="header-left">
+        <Button
+          className="p-button-rounded p-button-info"
+          label="เพิ่มข่าวประกาศ"
+          icon="pi pi-plus"
+          onClick={() => {
+            setFormData({
+              announce_date: null,
+              announce_start: null,
+              announce_end: null,
+              announce_type: null,
+              title_th: "",
+              title_en: "",
+              detail_th: "",
+              detail_en: "",
+              link: "",
+            });
+            setDialog({ open: true, action: "เพิ่ม", data: null });
+          }}
+          style={{ marginBottom: 20 }}
+        />
+      </div>
+      <div className="header-right">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            type="search"
+            placeholder="ค้นหา"
+            onInput={(e) => setGlobalFilter(e.target.value)}
+          />
+        </span>
+      </div>
+    </div>
+  );
+
+  const actionBodyEdit = (rowData) => (
+    <div style={{ textAlign: "center" }}>
+      <Button
+        onClick={() => openEditDialog(rowData)}
+        icon="pi pi-pencil"
+        className="p-button-rounded p-button-warning"
+        tooltip="แก้ไข"
+        tooltipOptions={{ position: "top" }}
+      />
+    </div>
+  );
+
+  const actionBodyViewFile = (rowData) => (
+    <div style={{ textAlign: "center" }}>
+      <Button
+        icon="pi pi-file"
+        className="p-button-rounded p-button-secondary"
+        tooltip="ไฟล์แนบ"
+      />
+    </div>
+  );
 
   return (
     <>
-      <Dialog
-        header={
-          dialog.action === "บันทึก"
-            ? "เพิ่มข่าวประกาศ"
-            : dialog.action + "ข่าวประกาศ"
-        }
-        visible={dialog.dialog}
-        style={{ width: "65vw" }}
-        footer={renderFooter()}
-        onHide={() => onHide()}
-        blockScroll={true}
-        className="p-fluid"
-        maximizable={true}
+      <Loading loading={loading} />
+      <Toast ref={toast} position="top-right" />
+
+      <DataTable
+        value={dataTable}
+        dataKey="announce_seq"
+        paginator
+        rows={10}
+        header={header}
+        globalFilter={globalFilter}
+        emptyMessage="ไม่พบข้อมูลที่ค้นหา"
+        rowHover
+        scrollable
+        scrollDirection="horizontal"
       >
-        <div className="p-grid" style={{ marginBottom: 30 }}>
-          <div className="p-col-6">
-            <label>
-              วันที่ประกาศ<span style={{ color: "red" }}>*</span>
-            </label>
-            <Calendars
-              value={
-                formObject?.announce_date
-                  ? new Date(formObject.announce_date)
-                  : new Date()
-              }
-              onChange={(e) =>
-                setformObject({ ...formObject, announce_date: e.target.value })
-              }
-            />
-          </div>
-          <div className="p-col-6">
-            <label>
-              ประเภทข่าว<span style={{ color: "red" }}>*</span>
-            </label>
-            <Dropdown
-              optionLabel="label"
-              optionValue="value"
-              value={formObject.announce_type + ""}
-              options={annouceType}
-              onChange={(e) =>
-                setformObject({ ...formObject, announce_type: e.value })
-              }
-              appendTo={document.body}
-            />
-            {submitted &&
-              formObject.announce_type === "-1" &&
-              validateInputText("announce_type", "ประเภทข่าว")}
-          </div>
-          <div className="p-col-6">
-            <label>
-              วันที่เริ่มต้นประกาศ<span style={{ color: "red" }}>*</span>
-            </label>
-            <Calendars
-              showTime
-              value={new Date(formObject.announce_start_date)}
-              maxDate={new Date(formObject.announce_finish_date)}
-              onChange={(e) =>
-                setformObject({
-                  ...formObject,
-                  announce_start_date: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="p-col-6">
-            <label>
-              วันที่สิ้นสุดประกาศ<span style={{ color: "red" }}>*</span>
-            </label>
-            <Calendars
-              showTime
-              value={new Date(formObject.announce_finish_date)}
-              minDate={new Date(formObject.announce_start_date)}
-              onChange={(e) =>
-                setformObject({
-                  ...formObject,
-                  announce_finish_date: e.target.value,
-                })
-              }
-            />
-          </div>
-          <div className="p-col-6">
-            <label>
-              หัวข้อประกาศ(ภาษาไทย)<span style={{ color: "red" }}>*</span>
-            </label>
-            <InputText
-              value={formObject.announce_title_th}
-              onChange={(e) =>
-                setformObject({
-                  ...formObject,
-                  announce_title_th: e.target.value,
-                })
-              }
-              maxLength="500"
-            />
-            {submitted &&
-              !formObject.announce_title_th &&
-              validateInputText("announce_title_th", "หัวข้อประกาศ(ภาษาไทย)")}
-          </div>
-          <div className="p-col-6">
-            <label>
-              หัวข้อประกาศ(ภาษาอังกฤษ)<span style={{ color: "red" }}>*</span>
-            </label>
-            <InputText
-              value={formObject.announce_title_en}
-              onChange={(e) =>
-                setformObject({
-                  ...formObject,
-                  announce_title_en: e.target.value,
-                })
-              }
-              maxLength="500"
-            />
-            {submitted &&
-              !formObject.announce_title_en &&
-              validateInputText(
-                "announce_title_en",
-                "หัวข้อประกาศ(ภาษาอังกฤษ)"
-              )}
-          </div>
-          <div className="p-col-12">
-            <label>
-              รายละเอียดประกาศ(ภาษาไทย)<span style={{ color: "red" }}>*</span>
-            </label>
-            {/* <InputTextarea rows={5} value={formObject.announce_desc_th} onChange={(e) => setformObject({ ...formObject, announce_desc_th: e.target.value })} style={{ height: '100px' }} maxLength="4000" /> */}
-            <Editor
-              headerTemplate={editorHeader}
-              style={{ height: "200px" }}
-              value={formObject.announce_desc_th}
-              onTextChange={(e) =>
-                setformObject({ ...formObject, announce_desc_th: e.htmlValue })
-              }
-              modules={{
-                toolbar: toolbarOptions,
-              }}
-            />
-            {submitted &&
-              !formObject.announce_desc_th &&
-              validateInputText(
-                "announce_desc_th",
-                "รายละเอียดประกาศ(ภาษาไทย)"
-              )}
-          </div>
-          <div className="p-col-12">
-            <label>
-              รายละเอียดประกาศ(ภาษาอังกฤษ)
-              <span style={{ color: "red" }}>*</span>
-            </label>
-            {/* <InputTextarea rows={5} value={formObject.announce_desc_en} onChange={(e) => setformObject({ ...formObject, announce_desc_en: e.target.value })} style={{ height: '100px' }} maxLength="4000" /> */}
-            <Editor
-              headerTemplate={editorHeader}
-              style={{ height: "200px" }}
-              value={formObject.announce_desc_en}
-              onTextChange={(e) =>
-                setformObject({ ...formObject, announce_desc_en: e.htmlValue })
-              }
-              modules={{
-                toolbar: toolbarOptions,
-              }}
-            />
-            {submitted &&
-              !formObject.announce_desc_en &&
-              validateInputText(
-                "announce_desc_en",
-                "รายละเอียดประกาศ(ภาษาอังกฤษ)"
-              )}
-          </div>
-          <div className="p-col-12">
-            <label>ลิ้งเพิ่มเติม(ถ้ามี)</label>
-            <InputText
-              value={formObject.announce_url}
-              onChange={(e) =>
-                setformObject({ ...formObject, announce_url: e.target.value })
-              }
-              placeholder="www.example.com"
-              maxLength="255"
-            />
-          </div>
+        <Column
+          field="index"
+          header="ลำดับ"
+          style={{ textAlign: "center", width: 100 }}
+        />
+        <Column
+          field="announce_date"
+          header="วันที่ประกาศ"
+          body={(e) => formatDateTH(e.announce_date, false)}
+          style={{ textAlign: "center", width: 170 }}
+        />
+        <Column
+          field="announce_finish_date"
+          header="วันที่สิ้นสุดประกาศ"
+          body={(e) => formatDateTH(e.announce_finish_date, false)}
+          style={{ textAlign: "center", width: 170 }}
+        />
+        <Column
+          field="announce_title_th"
+          header="หัวข้อข่าวประกาศ (ภาษาไทย)"
+          style={{ textAlign: "center", width: 300 }}
+        />
+        <Column
+          field="announce_title_en"
+          header="หัวข้อข่าวประกาศ (ภาษาอังกฤษ)"
+          style={{ textAlign: "center", width: 300 }}
+        />
+        <Column
+          field="announce_type"
+          header="ประเภทข่าวประกาศ"
+          body={(e) => e.announce_type || "-"}
+          style={{ textAlign: "center", width: 240 }}
+        />
+        <Column
+          header="ไฟล์แนบ"
+          body={actionBodyViewFile}
+          style={{ width: 100 }}
+        />
+        <Column header="แก้ไข" body={actionBodyEdit} style={{ width: 100 }} />
+      </DataTable>
 
-          <div className="p-col-6">
-            <div className="p-grid">
-              <div className="p-col-12">
-                <Button
-                  label="เพิ่มรูปภาพ"
-                  icon="pi pi-plus"
-                  onClick={() => onAddFileClick("IMG")}
-                  className="p-button-rounded p-button-info"
-                  style={{ width: "150px" }}
-                />
-              </div>
-              <div className="p-col-12">
-                <small style={{ color: "red" }}>
-                  *ไฟล์ภาพเฉพาะนามสกุล .png, .jpeg เท่านั้น
-                </small>
-              </div>
-              {arrImg.map((list, index) => {
-                return list.announce_file_name === undefined ? (
-                  <>
-                    <div className="p-col-12">
-                      <label>{`${index + 1}. รูปภาพ ${
-                        list.announce_file_path !== undefined
-                          ? list.announce_file_name
-                          : ""
-                      }`}</label>
-                      <div style={{ display: "flex" }}>
-                        <input
-                          type="file"
-                          accept="image/png, image/jpeg"
-                          onChange={(e) => onChangefile(e, index, "IMG")}
-                          id={`_uploadIMG_${index + 1}`}
-                          name="filename"
-                          style={{
-                            border: "1px solid #E0E0E0",
-                            width: "100%",
-                            height: "33px",
-                            padding: "7px",
-                          }}
-                        />
-                        <Button
-                          icon="pi pi-trash"
-                          className="p-button-rounded p-button-danger"
-                          aria-label="Minus"
-                          onClick={() => removeArrFile(list, index, "IMG")}
-                          style={{
-                            marginLeft: "5px",
-                            height: "30px",
-                            width: "30px",
-                          }}
-                          tooltip={`คลิกที่นี่เพื่อลบรูปที่ ${index + 1}`}
-                        />
-                      </div>
-                    </div>
-                    {list.announce_file_path !== undefined ? (
-                      <div className="p-col-12" style={{ textAlign: "center" }}>
-                        <img
-                          src={list.announce_file_path}
-                          width="80%"
-                          height="200px"
-                        />
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="p-col-12">
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          border: "1px solid #ced4da",
-                          padding: "3px",
-                        }}
-                      >
-                        <label style={{ marginTop: "3px" }}>{`${
-                          index + 1
-                        }. รูปภาพ ${
-                          list.announce_file_path !== undefined
-                            ? list.announce_file_name
-                            : ""
-                        }`}</label>
-                        <Button
-                          icon="pi pi-trash"
-                          className="p-button-rounded p-button-danger"
-                          aria-label="Minus"
-                          onClick={() => removeArrFile(list, index, "IMG")}
-                          style={{
-                            marginLeft: "5px",
-                            height: "30px",
-                            width: "30px",
-                          }}
-                          tooltip={`คลิกที่นี่เพื่อลบรูปที่ ${index + 1}`}
-                        />
-                      </div>
-                    </div>
-                    {list.announce_file_path !== undefined ? (
-                      <div className="p-col-12" style={{ textAlign: "center" }}>
-                        <img
-                          src={list.announce_file_path}
-                          width="80%"
-                          height="200px"
-                        />
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </>
-                );
-              })}
+      <Dialog
+        header={`${dialog.action} ข่าวประกาศ`}
+        visible={dialog.open}
+        style={{ width: "70vw" }}
+        modal
+        onHide={handleCancel}
+      >
+        <div className="p-fluid">
+          <div className="p-grid p-formgrid">
+            {/* --- วันที่ประกาศ --- */}
+            <div className="p-field p-col-6">
+              <label>
+                วันที่ประกาศ <span style={{ color: "red" }}>*</span>
+              </label>
+              <Calendar
+                value={formData.announce_date}
+                onChange={(e) => handleChange("announce_date", e.value)}
+                showIcon
+                className={
+                  validateField(formData.announce_date) ? "p-invalid" : ""
+                }
+              />
+              {validateField(formData.announce_date) && (
+                <small className="p-error">กรุณาเลือกวันที่ประกาศ</small>
+              )}
             </div>
-          </div>
 
-          <div className="p-col-6">
-            <div className="p-grid">
-              <div className="p-col-12">
-                <Button
-                  label="เพิ่มไฟล์ PDF"
-                  icon="pi pi-plus"
-                  onClick={() => onAddFileClick("FILE")}
-                  className="p-button-rounded p-button-info"
-                  style={{ width: "150px" }}
-                />
-              </div>
-              <div className="p-col-12">
-                <label style={{ color: "red", fontWeight: true }}>
-                  *ไฟล์แนบเฉพาะนามสกุล .pdf เท่านั้น
-                </label>
-              </div>
-              {arrFile.map((list, index) => {
-                return list.announce_file_name === undefined ? (
-                  <>
-                    <div className="p-col-12">
-                      <label>{`${index + 1}. ไฟล์แนบ ${
-                        list.announce_file_name !== undefined
-                          ? list.announce_file_name
-                          : ""
-                      }`}</label>
-                      <div style={{ display: "flex" }}>
-                        <input
-                          type="file"
-                          accept="application/pdf"
-                          onChange={(e) => onChangefile(e, index, "FILE")}
-                          id={`_uploadFILE_${index + 1}`}
-                          name="filename"
-                          style={{
-                            border: "1px solid #E0E0E0",
-                            width: "100%",
-                            height: "33px",
-                            padding: "7px",
-                          }}
-                        />
-                        {list.announce_file_path !== undefined ? (
-                          <Button
-                            icon="pi pi-external-link"
-                            className="p-button-rounded p-button-info"
-                            aria-label="Minus"
-                            onClick={() =>
-                              setPopupViewFile({
-                                open: true,
-                                linkURL: list.announce_file_path,
-                              })
-                            }
-                            style={{
-                              marginLeft: "5px",
-                              height: "30px",
-                              width: "30px",
-                            }}
-                            tooltip={`คลิกที่นี่เพื่อดูไฟล์`}
-                          />
-                        ) : (
-                          ""
-                        )}
-                        <Button
-                          icon="pi pi-trash"
-                          className="p-button-rounded p-button-danger"
-                          aria-label="Minus"
-                          onClick={() => removeArrFile(list, index, "FILE")}
-                          style={{
-                            marginLeft: "5px",
-                            height: "30px",
-                            width: "30px",
-                          }}
-                          tooltip={`คลิกที่นี่เพื่อลบไฟล์ที่ ${index + 1}`}
-                        />
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="p-col-12">
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          border: "1px solid #ced4da",
-                          padding: "3px",
-                        }}
-                      >
-                        <label style={{ marginTop: "3px" }}>{`${
-                          index + 1
-                        }. ไฟล์แนบ ${
-                          list.announce_file_name !== undefined
-                            ? list.announce_file_name
-                            : ""
-                        }`}</label>
-                        <div>
-                          {list.announce_file_path !== undefined ? (
-                            <Button
-                              icon="pi pi-external-link"
-                              className="p-button-rounded p-button-info"
-                              aria-label="Minus"
-                              onClick={() =>
-                                setPopupViewFile({
-                                  open: true,
-                                  linkURL: list.announce_file_path,
-                                })
-                              }
-                              style={{
-                                marginLeft: "5px",
-                                height: "30px",
-                                width: "30px",
-                              }}
-                              tooltip={`คลิกที่นี่เพื่อดูไฟล์`}
-                            />
-                          ) : (
-                            ""
-                          )}
-                          <Button
-                            icon="pi pi-trash"
-                            className="p-button-rounded p-button-danger"
-                            aria-label="Minus"
-                            onClick={() => removeArrFile(list, index, "FILE")}
-                            style={{
-                              marginLeft: "5px",
-                              height: "30px",
-                              width: "30px",
-                            }}
-                            tooltip={`คลิกที่นี่เพื่อลบไฟล์ที่ ${index + 1}`}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                );
-              })}
+            {/* --- ประเภทข่าว --- */}
+            <div className="p-field p-col-6">
+              <label>
+                ประเภทข่าว <span style={{ color: "red" }}>*</span>
+              </label>
+              <Dropdown
+                value={formData.announce_type}
+                options={types}
+                onChange={(e) => handleChange("announce_type", e.value)}
+                placeholder="-กรุณาเลือก-"
+                className={
+                  validateField(formData.announce_type) ? "p-invalid" : ""
+                }
+              />
+            </div>
+
+            {/* --- วันที่เริ่มต้น/สิ้นสุด --- */}
+            <div className="p-field p-col-6">
+              <label>
+                วันที่เริ่มต้นประกาศ <span style={{ color: "red" }}>*</span>
+              </label>
+              <Calendar
+                value={formData.announce_start}
+                onChange={(e) => handleChange("announce_start", e.value)}
+                showIcon
+                showTime
+                className={
+                  validateField(formData.announce_start) ? "p-invalid" : ""
+                }
+              />
+            </div>
+            <div className="p-field p-col-6">
+              <label>
+                วันที่สิ้นสุดประกาศ <span style={{ color: "red" }}>*</span>
+              </label>
+              <Calendar
+                value={formData.announce_end}
+                onChange={(e) => handleChange("announce_end", e.value)}
+                showIcon
+                showTime
+                className={
+                  validateField(formData.announce_end) ? "p-invalid" : ""
+                }
+              />
+            </div>
+
+            {/* --- หัวข้อ --- */}
+            <div className="p-field p-col-6">
+              <label>
+                หัวข้อประกาศ (ภาษาไทย) <span style={{ color: "red" }}>*</span>
+              </label>
+              <InputText
+                value={formData.title_th}
+                onChange={(e) => handleChange("title_th", e.target.value)}
+                className={validateField(formData.title_th) ? "p-invalid" : ""}
+              />
+            </div>
+
+            <div className="p-field p-col-6">
+              <label>
+                หัวข้อประกาศ (ภาษาอังกฤษ){" "}
+                <span style={{ color: "red" }}>*</span>
+              </label>
+              <InputText
+                value={formData.title_en}
+                onChange={(e) => handleChange("title_en", e.target.value)}
+                className={validateField(formData.title_en) ? "p-invalid" : ""}
+              />
+            </div>
+
+            {/* --- รายละเอียด --- */}
+            <div className="p-field p-col-12">
+              <label>รายละเอียดประกาศ (ภาษาไทย)</label>
+              <Editor
+                style={{ height: "150px" }}
+                value={formData.detail_th}
+                onTextChange={(e) => handleChange("detail_th", e.htmlValue)}
+              />
+            </div>
+
+            <div className="p-field p-col-12">
+              <label>รายละเอียดประกาศ (ภาษาอังกฤษ)</label>
+              <Editor
+                style={{ height: "150px" }}
+                value={formData.detail_en}
+                onTextChange={(e) => handleChange("detail_en", e.htmlValue)}
+              />
+            </div>
+
+            {/* --- ลิงก์ --- */}
+            <div className="p-field p-col-12">
+              <label>ลิงก์เพิ่มเติม (ถ้ามี)</label>
+              <InputText
+                placeholder="www.example.com"
+                value={formData.link}
+                onChange={(e) => handleChange("link", e.target.value)}
+              />
+            </div>
+
+            {/* --- ปุ่ม --- */}
+            <div className="dialog-footer-action-right">
+              <Button
+                label="ยกเลิก"
+                icon="pi pi-times"
+                onClick={handleCancel}
+                className="p-button-secondary p-button-rounded"
+              />
+              <Button
+                label="บันทึก"
+                icon="pi pi-check"
+                className="p-button-rounded p-button-info"
+                onClick={handleSubmit}
+              />
             </div>
           </div>
         </div>
       </Dialog>
-      {popupViewFile()}
     </>
   );
 }

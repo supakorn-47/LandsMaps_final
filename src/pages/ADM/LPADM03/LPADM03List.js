@@ -8,37 +8,36 @@ import { Dropdown } from "primereact/dropdown";
 import { Editor } from "primereact/editor";
 import { Dialog } from "primereact/dialog";
 import { formatDateTH } from "../../../utils/DateUtil";
+import LPADM03Services from "../../../service/ServiceADM/ServiceLPADM03";
 
 export default function LPADM03List({
   dataTable,
   setDeleteDialog,
   onViewFileClick,
+  onReload,
 }) {
   const [globalFilter, setGlobalFilter] = useState(null);
-
   const [dialog, setDialog] = useState({
     open: false,
     action: "บันทึก",
     data: null,
   });
-
   const [formData, setFormData] = useState({
-    announce_date: null,
-    announce_start: null,
-    announce_end: null,
-    announce_type: null,
-    title_th: "",
-    title_en: "",
-    detail_th: "",
-    detail_en: "",
-    link: "",
+    announce_seq: 0,
+    announce_start_date: null,
+    announce_finish_date: null,
+    announce_title_th: "",
+    announce_title_en: "",
+    announce_desc_th: "",
+    announce_desc_en: "",
+    announce_url: "",
+    announce_type: "1",
+    files: [],
   });
 
-  // 🔹 state สำหรับไฟล์
   const [imageFiles, setImageFiles] = useState([]);
   const [pdfFiles, setPdfFiles] = useState([]);
 
-  // 🔹 handler อัปโหลดไฟล์
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setImageFiles((prev) => [...prev, ...files]);
@@ -49,7 +48,6 @@ export default function LPADM03List({
     setPdfFiles((prev) => [...prev, ...files]);
   };
 
-  // 🔹 handler ลบไฟล์
   const removeImage = (index) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -79,37 +77,58 @@ export default function LPADM03List({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    console.log("📌 บันทึกข้อมูล:", {
-      ...formData,
-      imageFiles,
-      pdfFiles,
-    });
-    setDialog({ open: false, action: "บันทึก", data: null });
-  };
-
   const handleCancel = () => {
     setDialog({ open: false, action: "บันทึก", data: null });
   };
 
   const openEditDialog = (rowData) => {
     setFormData({
-      announce_date: rowData.otp_dtm || null,
-      announce_start: rowData.otp_expire || null,
-      announce_end: rowData.ref_code || null,
-      announce_type: rowData.announce_type || null,
-      title_th: rowData.otp || "",
-      title_en: rowData.to_email || "",
-      detail_th: rowData.detail_th || "",
-      detail_en: rowData.detail_en || "",
-      link: rowData.link || "",
+      announce_seq: rowData.announce_seq || 0,
+      announce_start_date: rowData.announce_start_date
+        ? new Date(rowData.announce_start_date)
+        : null,
+      announce_finish_date: rowData.announce_finish_date
+        ? new Date(rowData.announce_finish_date)
+        : null,
+      announce_title_th: rowData.announce_title_th || "",
+      announce_title_en: rowData.announce_title_en || "",
+      announce_desc_th:
+        rowData.announce_desc_th ||
+        rowData.announce_desc ||
+        rowData.announce_detail_th ||
+        "",
+      announce_desc_en:
+        rowData.announce_desc_en || rowData.announce_detail_en || "",
+      announce_url: rowData.announce_url || "",
+      announce_type: String(rowData.announce_type || "1"),
+      files: [],
     });
     setDialog({ open: true, action: "แก้ไข", data: rowData });
   };
 
+  const handleSave = async () => {
+    try {
+      let res;
+      if (dialog.action === "แก้ไข") {
+        res = await LPADM03Services.UpdateData(formData);
+      } else {
+        res = await LPADM03Services.AddData(formData);
+      }
+      if (res?.status === 200) {
+        await onReload();
+      }
+      setDialog({ open: false, action: "บันทึก", data: null });
+    } catch (err) {
+      console.error("[handleSave Error]", err);
+    }
+  };
+
   const header = (
-    <div className="table-header">
-      <div className="header-left">
+    <div
+      className="table-header"
+      style={{ display: "flex", justifyContent: "space-between" }}
+    >
+      <div>
         <Button
           className="p-button-rounded p-button-info"
           label="เพิ่มข่าวประกาศ"
@@ -130,10 +149,9 @@ export default function LPADM03List({
             setPdfFiles([]);
             setDialog({ open: true, action: "บันทึก", data: null });
           }}
-          style={{ marginBottom: 20 }}
         />
       </div>
-      <div className="header-right">
+      <div>
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
@@ -147,43 +165,32 @@ export default function LPADM03List({
   );
 
   const actionBodyEdit = (rowData) => (
-    <div style={{ textAlign: "center" }}>
-      <Button
-        onClick={() => openEditDialog(rowData)}
-        icon="pi pi-pencil"
-        className="p-button-rounded p-button-warning"
-        tooltip="แก้ไข"
-        tooltipOptions={{ position: "top" }}
-      />
-    </div>
+    <Button
+      onClick={() => openEditDialog(rowData)}
+      icon="pi pi-pencil"
+      className="p-button-rounded p-button-warning"
+      tooltip="แก้ไข"
+    />
   );
 
   const actionBodyDelete = (rowData) => (
-    <div style={{ textAlign: "center" }}>
-      <Button
-        onClick={() =>
-          setDeleteDialog({ open: true, data: rowData, onClickDelete: "ROW" })
-        }
-        style={{ marginLeft: 5 }}
-        icon="pi pi-trash"
-        className="p-button-rounded p-button-danger"
-        tooltip="ลบ"
-        tooltipOptions={{ position: "top" }}
-      />
-    </div>
+    <Button
+      onClick={() =>
+        setDeleteDialog({ open: true, data: rowData, onClickDelete: "ROW" })
+      }
+      icon="pi pi-trash"
+      className="p-button-rounded p-button-danger"
+      tooltip="ลบ"
+    />
   );
 
   const actionBodyViewFile = (rowData) => (
-    <div style={{ textAlign: "center" }}>
-      <Button
-        onClick={() => onViewFileClick(rowData)}
-        style={{ marginLeft: 5 }}
-        icon="pi pi-file"
-        className="p-button-rounded p-button-secondary"
-        tooltip="ไฟล์แนบ"
-        tooltipOptions={{ position: "top" }}
-      />
-    </div>
+    <Button
+      onClick={() => onViewFileClick(rowData)}
+      icon="pi pi-file"
+      className="p-button-rounded p-button-secondary"
+      tooltip="ไฟล์แนบ"
+    />
   );
 
   return (
@@ -203,34 +210,45 @@ export default function LPADM03List({
         <Column
           field="index"
           header="ลำดับ"
-          style={{ textAlign: "center", width: 80 }}
+          style={{ width: 80, textAlign: "center" }}
         />
         <Column
-          field="otp_dtm"
+          field="announce_date"
           header="วันที่ประกาศ"
-          body={(e) => formatDateTH(e.otp_dtm, true)}
-          style={{ textAlign: "center", width: 150 }}
+          body={(e) =>
+            e.announce_date ? formatDateTH(e.announce_date, true) : "-"
+          }
+          style={{ width: 150, textAlign: "center" }}
         />
         <Column
-          field="otp_expire"
+          field="announce_start_date"
           header="วันที่เริ่มต้นประกาศ"
-          body={(e) => formatDateTH(e.otp_expire, true)}
-          style={{ textAlign: "center", width: 150 }}
+          body={(e) =>
+            e.announce_start_date
+              ? formatDateTH(e.announce_start_date, true)
+              : "-"
+          }
+          style={{ width: 150, textAlign: "center" }}
         />
         <Column
-          field="ref_code"
+          field="announce_finish_date"
           header="วันที่สิ้นสุดประกาศ"
-          style={{ textAlign: "center", width: 150 }}
+          body={(e) =>
+            e.announce_finish_date
+              ? formatDateTH(e.announce_finish_date, true)
+              : "-"
+          }
+          style={{ width: 150, textAlign: "center" }}
         />
         <Column
-          field="otp"
-          header="หัวข้อข่าวประกาศ(ภาษาไทย)"
-          style={{ textAlign: "center", width: 300 }}
+          field="announce_title_th"
+          header="หัวข้อข่าวประกาศ (ภาษาไทย)"
+          style={{ width: 300 }}
         />
         <Column
-          field="to_email"
-          header="หัวข้อประกาศ(ภาษาอังกฤษ)"
-          style={{ textAlign: "center", width: 300 }}
+          field="announce_title_en"
+          header="หัวข้อข่าวประกาศ (ภาษาอังกฤษ)"
+          style={{ width: 300 }}
         />
         <Column
           header="ไฟล์แนบ"
@@ -241,7 +259,6 @@ export default function LPADM03List({
         <Column header="ลบ" body={actionBodyDelete} style={{ width: 80 }} />
       </DataTable>
 
-      {/* Dialog ฟอร์มเพิ่ม/แก้ไข */}
       <Dialog
         header={`${dialog.action} ข่าวประกาศ`}
         visible={dialog.open}
@@ -251,7 +268,6 @@ export default function LPADM03List({
       >
         <div className="p-fluid">
           <div className="p-grid p-formgrid">
-            {/* ฟิลด์ต่าง ๆ */}
             <div className="p-field p-col-6">
               <label>วันที่ประกาศ</label>
               <Calendar
@@ -260,6 +276,7 @@ export default function LPADM03List({
                 showIcon
               />
             </div>
+
             <div className="p-field p-col-6">
               <label>ประเภทข่าว</label>
               <Dropdown
@@ -269,6 +286,7 @@ export default function LPADM03List({
                 placeholder="-กรุณาเลือก-"
               />
             </div>
+
             <div className="p-field p-col-6">
               <label>วันที่เริ่มต้นประกาศ</label>
               <Calendar
@@ -278,6 +296,7 @@ export default function LPADM03List({
                 showTime
               />
             </div>
+
             <div className="p-field p-col-6">
               <label>วันที่สิ้นสุดประกาศ</label>
               <Calendar
@@ -287,52 +306,61 @@ export default function LPADM03List({
                 showTime
               />
             </div>
+
             <div className="p-field p-col-6">
               <label>หัวข้อประกาศ (ภาษาไทย)</label>
               <InputText
-                value={formData.title_th}
-                onChange={(e) => handleChange("title_th", e.target.value)}
+                value={formData.announce_title_th}
+                onChange={(e) =>
+                  handleChange("announce_title_th", e.target.value)
+                }
               />
             </div>
+
             <div className="p-field p-col-6">
               <label>หัวข้อประกาศ (ภาษาอังกฤษ)</label>
               <InputText
-                value={formData.title_en}
-                onChange={(e) => handleChange("title_en", e.target.value)}
+                value={formData.announce_title_en}
+                onChange={(e) =>
+                  handleChange("announce_title_en", e.target.value)
+                }
               />
             </div>
+
             <div className="p-field p-col-12">
               <label>รายละเอียดประกาศ (ภาษาไทย)</label>
               <Editor
                 style={{ height: "150px" }}
-                value={formData.detail_th}
-                onTextChange={(e) => handleChange("detail_th", e.htmlValue)}
+                value={formData.announce_desc_th}
+                onTextChange={(e) =>
+                  handleChange("announce_desc_th", e.htmlValue)
+                }
                 headerTemplate={customToolbar}
               />
             </div>
+
             <div className="p-field p-col-12">
               <label>รายละเอียดประกาศ (ภาษาอังกฤษ)</label>
               <Editor
                 style={{ height: "150px" }}
-                value={formData.detail_en}
-                onTextChange={(e) => handleChange("detail_en", e.htmlValue)}
+                value={formData.announce_desc_en}
+                onTextChange={(e) =>
+                  handleChange("announce_desc_en", e.htmlValue)
+                }
                 headerTemplate={customToolbar}
+              />
+            </div>
+
+            <div className="p-field p-col-12">
+              <label>ลิงก์เพิ่มเติม (ถ้ามี)</label>
+              <InputText
+                placeholder="www.example.com"
+                value={formData.announce_url}
+                onChange={(e) => handleChange("announce_url", e.target.value)}
               />
             </div>
           </div>
 
-          <div className="p-field p-col-12">
-            <label>ลิงก์เพิ่มเติม(ถ้ามี)</label>
-            <InputText
-              placeholder="www.example.com"
-              value={formData.link}
-              onChange={(e) => handleChange("link", e.target.value)}
-            />
-          </div>
-
-          {/* อัปโหลดรูปภาพ */}
-          {/* อัปโหลดรูปภาพ */}
-          {/* ปุ่มเพิ่มรูปภาพ และ เพิ่มไฟล์ PDF บรรทัดเดียวกัน */}
           <div
             className="p-col-12"
             style={{
@@ -341,7 +369,6 @@ export default function LPADM03List({
               marginBottom: "1rem",
             }}
           >
-            {/* เพิ่มรูปภาพ */}
             <div>
               <Button
                 label="เพิ่มรูปภาพ"
@@ -381,7 +408,6 @@ export default function LPADM03List({
               ))}
             </div>
 
-            {/* เพิ่มไฟล์ PDF */}
             <div>
               <Button
                 label="เพิ่มไฟล์ PDF"
@@ -393,7 +419,7 @@ export default function LPADM03List({
               <p style={{ color: "red", margin: "5px 0" }}>
                 *ไฟล์แนบเฉพาะนามสกุล .pdf เท่านั้น
               </p>
-              <input  
+              <input
                 id="pdfUpload"
                 type="file"
                 accept=".pdf"
@@ -432,7 +458,7 @@ export default function LPADM03List({
             <Button
               label="บันทึก"
               icon="pi pi-check"
-              onClick={handleSubmit}
+              onClick={handleSave}
               className="p-button-rounded p-button-info"
               autoFocus
             />
