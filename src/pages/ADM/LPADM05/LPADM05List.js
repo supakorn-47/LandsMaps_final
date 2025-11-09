@@ -1,35 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
-import { formatDateTH, formatDateTH2 } from "../../../utils/DateUtil";
-//Paginator
-import {
-  currentPageReportTemplate,
-  paginatorTemplate,
-  rowsPerPageOptions,
-} from "../../../utils/TableUtil";
-import { Paginator } from "primereact/paginator";
+import { formatDateTH } from "../../../utils/DateUtil";
 import useResponsivePaginator from "../../../hooks/useResponsivePaginator";
 
 export default function LPADM05List(props) {
-  let styleSpan = useStyleSpan();
-
+  const styleSpan = useStyleSpan();
   const [globalFilter, setGlobalFilter] = useState(null);
 
   const {
-    rows,
+    rows: defaultRows,
     pageLinkSize,
     rowsPerPageOptions,
     currentPageReportTemplate,
     paginatorTemplate,
   } = useResponsivePaginator();
 
+  const rows = props.rows ?? defaultRows;
+  const first = props.first ?? 0;
+  const totalRecords =
+    typeof props.totalRecords === "number"
+      ? props.totalRecords
+      : props.dataTable?.length || 0;
+
   const header = (
     <div className="table-header">
       <div className="header-left"></div>
       <div className="header-right">
-        {" "}
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
@@ -43,52 +41,53 @@ export default function LPADM05List(props) {
   );
 
   const actionBodyStatus = (rowData) => {
+    const ok = Number(rowData.response_status) === 1;
     return (
       <div style={{ textAlign: "center" }}>
         <span
           style={{
-            background: rowData.response_status === 1 ? "#c8e6c9" : "#ffcdd2",
-            color: rowData.response_status === 1 ? "#256029" : "#c63737",
+            background: ok ? "#c8e6c9" : "#ffcdd2",
+            color: ok ? "#256029" : "#c63737",
             ...styleSpan,
           }}
         >
-          {rowData.response_status === 1 ? "ติดต่อได้" : "ติดต่อไม่ได้"}
+          {ok ? "ติดต่อได้" : "ติดต่อไม่ได้"}
         </span>
       </div>
     );
   };
 
-  const formatDate = (rowData, isTime, checkColumn) => {
-    let date = { ...rowData };
-    let datevalue = date[`${checkColumn}`];
-    return <>{formatDateTH(datevalue, isTime)}</>;
+  const cellDate = (rowData, key, isTime = true) => {
+    const val = rowData?.[key];
+    return <>{formatDateTH(val, isTime)}</>;
   };
 
   const formatNumber = (rowData) => {
-    return rowData.data_size.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const n = Number(rowData?.data_size ?? 0);
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   return (
     <>
       <DataTable
-        // className="modern-datatable"
         value={props.dataTable}
         dataKey="row_num"
-        // rows={10} //{props.Rows}
-        // onPage={(e) => props.onPageChange(e)}
+        header={header}
+        globalFilter={globalFilter}
         emptyMessage="ไม่พบข้อมูลที่ค้นหา"
         rowHover
-        // rowsPerPageOptions={rowsPerPageOptions()}
-        // paginatorTemplate={paginatorTemplate()}
-        // currentPageReportTemplate={currentPageReportTemplate()}
+        showGridlines
         scrollable
         scrollDirection="horizontal"
         paginator
         pageLinkSize={pageLinkSize}
         rows={rows}
+        first={first}
+        totalRecords={totalRecords}
         rowsPerPageOptions={rowsPerPageOptions}
         paginatorTemplate={paginatorTemplate}
         currentPageReportTemplate={currentPageReportTemplate}
+        onPage={props.onPageChange}
       >
         <Column
           field="row_num"
@@ -99,7 +98,7 @@ export default function LPADM05List(props) {
           field="log_user_dtm"
           header="วันเวลาประวัติ"
           style={{ textAlign: "center", width: 150 }}
-          body={(e) => formatDate(e, true, "log_user_dtm")}
+          body={(e) => cellDate(e, "log_user_dtm", true)}
           sortable
         />
         <Column
@@ -118,13 +117,14 @@ export default function LPADM05List(props) {
           field="register_type_name"
           header="กลุ่มผู้ใช้งาน"
           sortable
-          style={{ wordWrap: "break-word", width: 300 }}
+          style={{ width: 300, wordWrap: "break-word" }}
         />
         <Column
-          field="department_name"
+          field="department_name_display"
           header="หน่วยงาน"
           sortable
-          style={{ wordWrap: "break-word", width: 300 }}
+          style={{ width: 300, wordWrap: "break-word" }}
+          body={(row) => row?.department_name_th || "-"}
         />
         <Column
           field="response_status"
@@ -134,18 +134,6 @@ export default function LPADM05List(props) {
           sortable
         />
       </DataTable>
-
-      {/* <Paginator
-        className="modern-paginator"
-        paginator
-        first={props.First}
-        rows={props.Rows}
-        totalRecords={props.dataTable.length === 0 ? 0 : props.totalRecords}
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        onPageChange={(e) => props.onPageChange(e)}
-        template={paginatorTemplate()}
-        currentPageReportTemplate={currentPageReportTemplate()}
-      ></Paginator> */}
     </>
   );
 }

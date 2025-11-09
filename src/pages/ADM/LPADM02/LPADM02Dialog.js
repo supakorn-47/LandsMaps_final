@@ -121,6 +121,23 @@ export default function LPADM02Dialog({
   ]);
 
   const [selectedSystems, setSelectedSystems] = useState([]);
+  const toDate = (v) => {
+    if (!v) return null;
+    if (v instanceof Date && !isNaN(v)) return v;
+    if (typeof v === "string") {
+      const s = v.replace(/[^0-9]/g, "");
+      if (s.length === 8) {
+        const y = +s.slice(0, 4);
+        const m = +s.slice(4, 6) - 1;
+        const d = +s.slice(6, 8);
+        const dt = new Date(y, m, d);
+        return isNaN(dt) ? null : dt;
+      }
+      const dt = new Date(v);
+      return isNaN(dt) ? null : dt;
+    }
+    return null;
+  };
 
   const {
     rows,
@@ -131,12 +148,14 @@ export default function LPADM02Dialog({
   } = useResponsivePaginator();
 
   useEffect(() => {
-    if (dialog.data) {
+    if (dialog.data && Array.isArray(dialog.data.operating_system_list)) {
       if (dialog.data.operating_system_list.length === 1) {
         setSelectedSystems(nullselectedSystems);
       } else {
         setSelectedSystems(dialog.data.operating_system_list);
       }
+    } else {
+      setSelectedSystems(nullselectedSystems);
     }
   }, [dialog.data]);
 
@@ -238,46 +257,46 @@ export default function LPADM02Dialog({
     clear: "ล้าง",
   };
 
-  // useEffect(() => {
-  //   console.log("========",selectedSystems)
-  //   console.log('formObject',formObject)
-  // }, [formObject]);
   const handleChangeValue = (e, fieldName) => {
     const value = e.value ?? e.target.value;
 
-    // ← ตรงนี้ตั้ง state อีกตัว
     setformObject((prev) => ({
       ...prev,
-      [fieldName]: value, // fieldName อาจเป็น 'consumerType'
+      [fieldName]: value,
     }));
   };
   useEffect(() => {
     setAdflag(false);
-    console.log("🔍 dialog.action:", dialog.action);
+    // console.log(" dialog.action:", dialog.action);
     if (dialog.action === "แก้ไข") {
-      // console.log("selectedSystems 22  : ", selectedSystems);
       setformObject({
         ...dialog.data,
         user_password2: dialog.data.user_password,
+        person_birthdate: toDate(dialog.data.person_birthdate),
       });
+
       if (dialog.data.register_ad_flag === "1") {
         setAdflag(true);
-        setFormAD({ ...dialog.data, result: true });
+        setFormAD({
+          ...dialog.data,
+          result: true,
+          person_birthdate: toDate(dialog.data.person_birthdate),
+        });
       }
-      masterService(
-        `GetLandoffice?mode=1&province_seq=${dialog.data.province_seq}`,
-        {},
-        "GET"
-      ).then((res) => {
-        setLandOffice(res.result);
-      });
-      masterService(
-        `GetAmphur?mode=1&province_seq=${dialog.data.province_seq}`,
-        {},
-        "GET"
-      ).then((res) => {
-        setOptionAmphur(res.result);
-      });
+      // masterService(
+      //   `GetLandoffice?mode=1&province_seq=${dialog.data.province_seq}`,
+      //   {},
+      //   "GET"
+      // ).then((res) => {
+      //   setLandOffice(res.result);
+      // });
+      // masterService(
+      //   `GetAmphur?mode=1&province_seq=${dialog.data.province_seq}`,
+      //   {},
+      //   "GET"
+      // ).then((res) => {
+      //   setOptionAmphur(res.result);
+      // });
       masterService(`GetDepartment?mode=1`, {}, "GET").then((res) => {
         setOptionDepartment(res.result);
       });
@@ -556,7 +575,7 @@ export default function LPADM02Dialog({
             </label>
             <InputText
               disabled={!formAD.result}
-              value={formAD.person_firstnameth}
+              value={formAD.person_firstnameth ?? ""}
               onChange={(e) =>
                 setFormAD({ ...formAD, person_firstnameth: e.target.value })
               }
@@ -571,7 +590,7 @@ export default function LPADM02Dialog({
             </label>
             <InputText
               disabled={!formAD.result}
-              value={formAD.person_lastnameth}
+              value={formAD.person_lastnameth ?? ""}
               onChange={(e) =>
                 setFormAD({ ...formAD, person_lastnameth: e.target.value })
               }
@@ -584,17 +603,14 @@ export default function LPADM02Dialog({
             <label>
               วัน/เดือน/ปีเกิด<span style={{ color: "red" }}>*</span>
             </label>
-            <Calendars
-              disabled={!formAD.result}
-              value={
-                formAD.person_birthdate ? new Date(formAD.person_birthdate) : ""
-              }
-              yearRange={"1921:" + new Date().getFullYear()}
-              onChange={(e) =>
-                setFormAD({ ...formAD, person_birthdate: e.target.value })
-              }
-              maxDate={new Date()}
-            />
+          <Calendars
+  value={toDate(formObject.person_birthdate)}
+  yearRange={`1921:${new Date().getFullYear()}`}
+  onChange={(e) => setformObject((prev) => ({ ...prev, person_birthdate: e.value }))}
+  maxDate={new Date()}
+/>
+
+
             {submitted &&
               !formAD.person_birthdate &&
               validateInputText("person_birthdate", "วัน/เดือน/ปีเกิด")}
@@ -605,7 +621,7 @@ export default function LPADM02Dialog({
             </label>
             <InputMask
               disabled={!formAD.result}
-              value={formAD.person_id}
+              value={formAD.person_id ?? ""}
               onChange={(e) => checkCardId(e.target.value, "AD")}
               mask="9-9999-99999-99-9"
             />
@@ -624,10 +640,13 @@ export default function LPADM02Dialog({
             </label>
             <InputText
               disabled={!formAD.result}
-              value={formAD.person_email}
-              // onChange={(e) => setFormAD({ ...formAD, person_email: e.target.value })}
-              onChange={(e) => checkEmail(e, "AD")}
+              value={formAD.person_email ?? ""}
+              onChange={(e) =>
+                setFormAD((prev) => ({ ...prev, person_email: e.target.value }))
+              }
+              maxLength={150}
             />
+
             {isCheckEmail === false ? (
               <small className="p-invalid p-d-block">{`รูปแบบอีเมลไม่ถูกต้อง`}</small>
             ) : (
@@ -643,7 +662,7 @@ export default function LPADM02Dialog({
             </label>
             <InputMask
               disabled={!formAD.result}
-              value={formAD.person_phone}
+              value={formAD.person_phone ?? ""}
               onChange={(e) =>
                 setFormAD({ ...formAD, person_phone: e.target.value })
               }
@@ -687,7 +706,7 @@ export default function LPADM02Dialog({
             </label>
             <InputText
               validateOnly={true}
-              value={formObject.user_id}
+              value={formObject.user_id ?? ""}
               onChange={(e) =>
                 setformObject({ ...formObject, user_id: e.target.value })
               }
@@ -711,7 +730,7 @@ export default function LPADM02Dialog({
                     <>
                       <InputText
                         maxLength="20"
-                        value={formObject.user_password}
+                        value={formObject.user_password ?? ""}
                         onChange={(e) =>
                           setformObject({
                             ...formObject,
@@ -763,7 +782,7 @@ export default function LPADM02Dialog({
                     <>
                       <InputText
                         maxLength="20"
-                        value={formObject.user_password2}
+                        alue={formObject.user_password2 ?? ""}
                         onChange={(e) =>
                           setformObject({
                             ...formObject,
@@ -931,7 +950,7 @@ export default function LPADM02Dialog({
               ชื่อ<span style={{ color: "red" }}>*</span>
             </label>
             <InputText
-              value={formObject.person_firstnameth}
+              value={formObject.person_firstnameth ?? ""}
               onChange={(e) =>
                 setformObject({
                   ...formObject,
@@ -949,7 +968,7 @@ export default function LPADM02Dialog({
             </label>
 
             <InputText
-              value={formObject.person_lastnameth}
+              value={formObject.person_lastnameth ?? ""}
               onChange={(e) =>
                 setformObject({
                   ...formObject,
@@ -965,25 +984,20 @@ export default function LPADM02Dialog({
             <label>
               วัน/เดือน/ปีเกิด<span style={{ color: "red" }}>*</span>
             </label>
-            <Calendars
-              value={
-                formObject.person_birthdate
-                  ? new Date(formObject.person_birthdate)
-                  : ""
-              }
-              yearRange={"1921:" + new Date().getFullYear()}
-              onChange={(e) =>
-                setformObject({
-                  ...formObject,
-                  person_birthdate: e.target.value,
-                })
-              }
-              maxDate={new Date()}
-            />
+        <Calendars
+  disabled={!formAD.result}
+  value={toDate(formAD.person_birthdate)}
+  yearRange={`1921:${new Date().getFullYear()}`}
+  onChange={(e) => setFormAD((prev) => ({ ...prev, person_birthdate: e.value }))}
+  maxDate={new Date()}
+/>
+
+
             {submitted &&
               !formObject.person_birthdate &&
               validateInputText("person_birthdate", "วัน/เดือน/ปีเกิด")}
           </div>
+
           {/* เทสระบบ */}
           <div className="p-col-6">
             <label>
@@ -1017,7 +1031,7 @@ export default function LPADM02Dialog({
               อีเมล<span style={{ color: "red" }}>*</span>
             </label>
             <InputText
-              value={formObject.person_email}
+              value={formObject.person_email ?? ""}
               onChange={(e) => checkEmail(e, "form")}
             />
             {isCheckEmail === false ? (
@@ -1140,12 +1154,11 @@ export default function LPADM02Dialog({
                       ? formObject.register_type_seq + ""
                       : formObject.register_type_seq + ""
                   }
-                  options={registerType}
-                  // options={[
-                  //     // { label: 'กรุณาเลือก', value: '-1' },
-                  //     { label: 'ผู้ดูเเลระบบส่วนกลาง', value: '2' },
-                  //     { label: 'ผู้ดูเเลระบบ', value: '6' },
-                  // ]}
+                  options={[
+                    // { label: 'กรุณาเลือก', value: '-1' },
+                    { label: "ผู้ดูเเลระบบส่วนกลาง", value: "2" },
+                    { label: "ผู้ดูเเลระบบ", value: "6" },
+                  ]}
                   onChange={(e) => onRegisterTypeChange(parseInt(e.value))}
                   placeholder="เลือกกลุ่มผู้ใช้"
                   disabled={
@@ -1217,7 +1230,7 @@ export default function LPADM02Dialog({
                     {showPassAD === true ? (
                       <>
                         <Password
-                          value={formAD.user_password}
+                          value={formAD.user_password ?? ""}
                           onChange={(e) =>
                             setFormAD({
                               ...formAD,
@@ -1238,7 +1251,7 @@ export default function LPADM02Dialog({
                       <>
                         <InputText
                           maxLength="20"
-                          value={formAD.user_password}
+                          value={formAD.user_password ?? ""}
                           onChange={(e) =>
                             setFormAD({
                               ...formAD,
@@ -1328,7 +1341,7 @@ export default function LPADM02Dialog({
                     ตำแหน่ง<span style={{ color: "red" }}>*</span>
                   </label>
                   <InputText
-                    value={formObject.person_position}
+                    vvalue={formObject.person_position ?? ""}
                     onChange={(e) =>
                       setformObject({
                         ...formObject,
@@ -1398,7 +1411,7 @@ export default function LPADM02Dialog({
                     ตำแหน่ง<span style={{ color: "red" }}>*</span>
                   </label>
                   <InputText
-                    value={formObject.person_position}
+                    value={formObject.person_position ?? ""}
                     onChange={(e) =>
                       setformObject({
                         ...formObject,

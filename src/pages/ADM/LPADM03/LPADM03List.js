@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Toast } from "primereact/toast";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -9,13 +10,9 @@ import { Editor } from "primereact/editor";
 import { Dialog } from "primereact/dialog";
 import { formatDateTH } from "../../../utils/DateUtil";
 import LPADM03Services from "../../../service/ServiceADM/ServiceLPADM03";
+import { TabView, TabPanel } from "primereact/tabview";
 
-export default function LPADM03List({
-  dataTable,
-  setDeleteDialog,
-  onViewFileClick,
-  onReload,
-}) {
+export default function LPADM03List({ dataTable, setDeleteDialog, onReload }) {
   const [globalFilter, setGlobalFilter] = useState(null);
   const [dialog, setDialog] = useState({
     open: false,
@@ -37,17 +34,72 @@ export default function LPADM03List({
 
   const [imageFiles, setImageFiles] = useState([]);
   const [pdfFiles, setPdfFiles] = useState([]);
+  const [imageInputs, setImageInputs] = useState([{ id: Date.now() }]);
+  const [pdfInputs, setPdfInputs] = useState([{ id: Date.now() }]);
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImageFiles((prev) => [...prev, ...files]);
+  const [fileDialog, setFileDialog] = useState({ open: false, data: [] });
+  const [loadingFile, setLoadingFile] = useState(false);
+  const addImageInput = () => {
+    setImageInputs((prev) => [...prev, { id: Date.now() }]);
   };
 
-  const handlePdfChange = (e) => {
-    const files = Array.from(e.target.files);
-    setPdfFiles((prev) => [...prev, ...files]);
+  const removeImageInput = (id) => {
+    setImageInputs((prev) => prev.filter((input) => input.id !== id));
+    setImageFiles((prev) => prev.filter((_, i) => i !== id));
   };
 
+  const addPdfInput = () => {
+    setPdfInputs((prev) => [...prev, { id: Date.now() }]);
+  };
+
+  const removePdfInput = (id) => {
+    setPdfInputs((prev) => prev.filter((input) => input.id !== id));
+    setPdfFiles((prev) => prev.filter((_, i) => i !== id));
+  };
+
+  const onViewFileClick = async (rowData) => {
+    setLoadingFile(true);
+    try {
+      const res = await LPADM03Services.GetAnnounceFileList({
+        announce_seq: rowData.announce_seq,
+      });
+
+      const msg = res?.errors?.message || "";
+      const isORAError =
+        msg.includes("ORA-00904") || msg.includes("invalid identifier");
+      const files = Array.isArray(res?.result) ? res.result : [];
+      setFileDialog({ open: true, data: files });
+    } catch {
+      setFileDialog({ open: true, data: [] });
+    } finally {
+      setLoadingFile(false);
+    }
+  };
+  const validateField = (value) => {
+    if (value === null || value === undefined) return true;
+    if (typeof value === "string" && value.trim() === "") return true;
+    return false;
+  };
+
+  const handleImageChange = (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFiles((prev) => {
+      const updated = [...prev];
+      updated[index] = file;
+      return updated;
+    });
+  };
+
+  const handlePdfChange = (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPdfFiles((prev) => {
+      const updated = [...prev];
+      updated[index] = file;
+      return updated;
+    });
+  };
   const removeImage = (index) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -103,21 +155,32 @@ export default function LPADM03List({
       announce_type: String(rowData.announce_type || "1"),
       files: [],
     });
+
+    setImageFiles([]);
+    setPdfFiles([]);
+
     setDialog({ open: true, action: "แก้ไข", data: rowData });
   };
 
   const handleSave = async () => {
     try {
+      // ✅ รวมไฟล์ก่อนส่ง
+      const allFiles = [...imageFiles, ...pdfFiles];
+      const body = { ...formData, files: allFiles };
+
       let res;
       if (dialog.action === "แก้ไข") {
-        res = await LPADM03Services.UpdateData(formData);
+        res = await LPADM03Services.UpdateData(body);
       } else {
-        res = await LPADM03Services.AddData(formData);
+        res = await LPADM03Services.AddData(body);
       }
+
       if (res?.status === 200) {
         await onReload();
+        setDialog({ open: false, action: "บันทึก", data: null });
+        setImageFiles([]);
+        setPdfFiles([]);
       }
-      setDialog({ open: false, action: "บันทึก", data: null });
     } catch (err) {
       console.error("[handleSave Error]", err);
     }
@@ -183,21 +246,21 @@ export default function LPADM03List({
       tooltip="ลบ"
     />
   );
-
   const actionBodyViewFile = (rowData) => (
-    <Button
-      onClick={() => onViewFileClick(rowData)}
-      icon="pi pi-file"
-      className="p-button-rounded p-button-secondary"
-      tooltip="ไฟล์แนบ"
-    />
+    <div style={{ textAlign: "center" }}>
+      <Button
+        icon="pi pi-file"
+        className="p-button-rounded p-button-secondary"
+        tooltip="ไฟล์แนบ"
+        onClick={() => onViewFileClick(rowData)}
+      />
+    </div>
   );
-
   return (
     <>
       <DataTable
         value={dataTable}
-        dataKey="id"
+        dataKey="announce_seq"
         paginator
         rows={10}
         header={header}
@@ -268,15 +331,18 @@ export default function LPADM03List({
       >
         <div className="p-fluid">
           <div className="p-grid p-formgrid">
+            {/* --- วันที่ประกาศ --- */}
             <div className="p-field p-col-6">
               <label>วันที่ประกาศ</label>
               <Calendar
-                value={formData.announce_date}
+                value={formData.announce_date || new Date()}
                 onChange={(e) => handleChange("announce_date", e.value)}
                 showIcon
+                dateFormat="dd/mm/yy"
               />
             </div>
 
+            {/* --- ประเภทข่าว --- */}
             <div className="p-field p-col-6">
               <label>ประเภทข่าว</label>
               <Dropdown
@@ -286,184 +352,262 @@ export default function LPADM03List({
                 placeholder="-กรุณาเลือก-"
               />
             </div>
-
+            {/* --- วันที่เริ่มต้นประกาศ --- */}
             <div className="p-field p-col-6">
               <label>วันที่เริ่มต้นประกาศ</label>
               <Calendar
-                value={formData.announce_start}
-                onChange={(e) => handleChange("announce_start", e.value)}
+                value={formData.announce_start_date || new Date()}
+                onChange={(e) => handleChange("announce_start_date", e.value)}
                 showIcon
                 showTime
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
               />
             </div>
 
+            {/* --- วันที่สิ้นสุดประกาศ --- */}
             <div className="p-field p-col-6">
               <label>วันที่สิ้นสุดประกาศ</label>
               <Calendar
-                value={formData.announce_end}
-                onChange={(e) => handleChange("announce_end", e.value)}
+                value={formData.announce_finish_date || new Date()}
+                onChange={(e) => handleChange("announce_finish_date", e.value)}
                 showIcon
                 showTime
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
               />
             </div>
 
+            {/* --- หัวข้อประกาศ (ภาษาไทย) --- */}
             <div className="p-field p-col-6">
               <label>หัวข้อประกาศ (ภาษาไทย)</label>
               <InputText
-                value={formData.announce_title_th}
-                onChange={(e) =>
-                  handleChange("announce_title_th", e.target.value)
-                }
+                value={formData.announce_title_th || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const regexTH = /^[ก-๙0-9\s.,()'"!?-]*$/; //
+                  if (val === "" || regexTH.test(val))
+                    handleChange("announce_title_th", val);
+                }}
+                placeholder="กรุณากรอกเฉพาะภาษาไทย"
               />
             </div>
 
+            {/* --- หัวข้อประกาศ (ภาษาอังกฤษ) --- */}
             <div className="p-field p-col-6">
               <label>หัวข้อประกาศ (ภาษาอังกฤษ)</label>
               <InputText
-                value={formData.announce_title_en}
-                onChange={(e) =>
-                  handleChange("announce_title_en", e.target.value)
-                }
+                value={formData.announce_title_en || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const regexEN = /^[A-Za-z0-9\s.,()'"!?-]*$/;
+                  if (val === "" || regexEN.test(val))
+                    handleChange("announce_title_en", val);
+                }}
+                placeholder="กรุณากรอกเฉพาะภาษาอังกฤษ"
               />
             </div>
 
+            {/* --- รายละเอียดประกาศ (ภาษาไทย) --- */}
             <div className="p-field p-col-12">
               <label>รายละเอียดประกาศ (ภาษาไทย)</label>
               <Editor
                 style={{ height: "150px" }}
-                value={formData.announce_desc_th}
-                onTextChange={(e) =>
-                  handleChange("announce_desc_th", e.htmlValue)
-                }
+                value={formData.announce_desc_th || ""}
+                onTextChange={(e) => {
+                  const val = e.htmlValue;
+                  const regexTH = /^[ก-๙0-9\s.,()'"!?-]*$/;
+                  if (
+                    val === "" ||
+                    regexTH.test(val.replace(/<[^>]*>?/gm, ""))
+                  ) {
+                    handleChange("announce_desc_th", val);
+                  }
+                }}
                 headerTemplate={customToolbar}
               />
             </div>
 
+            {/* --- รายละเอียดประกาศ (ภาษาอังกฤษ) --- */}
             <div className="p-field p-col-12">
               <label>รายละเอียดประกาศ (ภาษาอังกฤษ)</label>
               <Editor
                 style={{ height: "150px" }}
-                value={formData.announce_desc_en}
-                onTextChange={(e) =>
-                  handleChange("announce_desc_en", e.htmlValue)
-                }
+                value={formData.announce_desc_en || ""}
+                onTextChange={(e) => {
+                  const val = e.htmlValue;
+                  const regexEN = /^[A-Za-z0-9\s.,()'"!?-]*$/;
+                  if (
+                    val === "" ||
+                    regexEN.test(val.replace(/<[^>]*>?/gm, ""))
+                  ) {
+                    handleChange("announce_desc_en", val);
+                  }
+                }}
                 headerTemplate={customToolbar}
               />
             </div>
-
-            <div className="p-field p-col-12">
-              <label>ลิงก์เพิ่มเติม (ถ้ามี)</label>
-              <InputText
-                placeholder="www.example.com"
-                value={formData.announce_url}
-                onChange={(e) => handleChange("announce_url", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div
-            className="p-col-12"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "1rem",
-            }}
-          >
-            <div>
-              <Button
-                label="เพิ่มรูปภาพ"
-                icon="pi pi-plus"
-                className="p-button-rounded p-button-info"
-                style={{ width: "150px" }}
-                onClick={() => document.getElementById("imageUpload").click()}
-              />
-              <p style={{ color: "red", margin: "5px 0" }}>
-                *ไฟล์ภาพเฉพาะนามสกุล .png, .jpeg เท่านั้น
-              </p>
-              <input
-                id="imageUpload"
-                type="file"
-                accept=".png,.jpeg,.jpg"
-                style={{ display: "none" }}
-                onChange={handleImageChange}
-              />
-              {imageFiles.map((file, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "5px",
-                  }}
-                >
-                  <span style={{ flex: 1 }}>
-                    {index + 1}. {file.name}
-                  </span>
-                  <Button
-                    icon="pi pi-trash"
-                    className="p-button-rounded p-button-danger p-button-sm"
-                    onClick={() => removeImage(index)}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <Button
-                label="เพิ่มไฟล์ PDF"
-                icon="pi pi-plus"
-                className="p-button-rounded p-button-info"
-                style={{ width: "150px" }}
-                onClick={() => document.getElementById("pdfUpload").click()}
-              />
-              <p style={{ color: "red", margin: "5px 0" }}>
-                *ไฟล์แนบเฉพาะนามสกุล .pdf เท่านั้น
-              </p>
-              <input
-                id="pdfUpload"
-                type="file"
-                accept=".pdf"
-                style={{ display: "none" }}
-                onChange={handlePdfChange}
-              />
-              {pdfFiles.map((file, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "5px",
-                  }}
-                >
-                  <span style={{ flex: 1 }}>
-                    {index + 1}. {file.name}
-                  </span>
-                  <Button
-                    icon="pi pi-trash"
-                    className="p-button-rounded p-button-danger p-button-sm"
-                    onClick={() => removePdf(index)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="dialog-footer-action-right">
-            <Button
-              label="ยกเลิก"
-              icon="pi pi-times"
-              onClick={handleCancel}
-              className="p-button-secondary p-button-rounded"
-            />
-            <Button
-              label="บันทึก"
-              icon="pi pi-check"
-              onClick={handleSave}
-              className="p-button-rounded p-button-info"
-              autoFocus
-            />
           </div>
         </div>
+
+        <div className="p-field p-col-12">
+          <label>ลิงก์เพิ่มเติม (ถ้ามี)</label>
+          <InputText
+            placeholder="www.example.com"
+            value={formData.announce_url}
+            onChange={(e) => handleChange("announce_url", e.target.value)}
+          />
+        </div>
+
+        <div
+          className="p-col-12"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1rem",
+          }}
+        >
+          <div>
+            <Button
+              label="เพิ่มรูปภาพ"
+              icon="pi pi-plus"
+              className="p-button-rounded p-button-info"
+              style={{ width: "150px" }}
+              onClick={addImageInput}
+            />
+            <p style={{ color: "red", margin: "5px 0" }}>
+              *ไฟล์ภาพเฉพาะนามสกุล .png, .jpeg เท่านั้น
+            </p>
+
+            {imageInputs.map((input, index) => (
+              <div
+                key={input.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "5px",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <label>{index + 1}. รูปภาพ</label>
+                  <input
+                    type="file"
+                    accept=".png,.jpeg,.jpg"
+                    onChange={(e) => handleImageChange(e, index)}
+                  />
+                </div>
+                <Button
+                  icon="pi pi-trash"
+                  className="p-button-rounded p-button-danger p-button-sm"
+                  onClick={() => removeImageInput(input.id)}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <Button
+              label="เพิ่มไฟล์ PDF"
+              icon="pi pi-plus"
+              className="p-button-rounded p-button-info"
+              style={{ width: "150px" }}
+              onClick={addPdfInput}
+            />
+            <p style={{ color: "red", margin: "5px 0" }}>
+              *ไฟล์แนบเฉพาะนามสกุล .pdf เท่านั้น
+            </p>
+
+            {pdfInputs.map((input, index) => (
+              <div
+                key={input.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "5px",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <label>{index + 1}. ไฟล์แนบ</label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => handlePdfChange(e, index)}
+                  />
+                </div>
+                <Button
+                  icon="pi pi-trash"
+                  className="p-button-rounded p-button-danger p-button-sm"
+                  onClick={() => removePdfInput(input.id)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="dialog-footer-action-right">
+          <Button
+            label="ยกเลิก"
+            icon="pi pi-times"
+            onClick={handleCancel}
+            className="p-button-secondary p-button-rounded"
+          />
+          <Button
+            label="บันทึก"
+            icon="pi pi-check"
+            onClick={handleSave}
+            className="p-button-rounded p-button-info"
+            autoFocus
+          />
+        </div>
+      </Dialog>
+      <Dialog
+        header="แสดงรูปภาพ"
+        visible={fileDialog.open}
+        style={{ width: "60vw" }}
+        modal
+        onHide={() => setFileDialog({ ...fileDialog, open: false })}
+      >
+        {loadingFile ? (
+          <p style={{ textAlign: "center" }}>กำลังโหลดไฟล์...</p>
+        ) : (
+          <TabView>
+            <TabPanel header="ไฟล์รูปภาพ">
+              {fileDialog.data
+                .filter((f) => f.file_type === "IMAGE")
+                .map((img, i) => (
+                  <div key={i} style={{ marginBottom: "1rem" }}>
+                    <img
+                      src={`data:image/png;base64,${img.file_data}`}
+                      alt={img.file_name}
+                      width="150"
+                      style={{
+                        borderRadius: "6px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <p>{img.file_name}</p>
+                  </div>
+                ))}
+            </TabPanel>
+
+            <TabPanel header="ไฟล์เอกสาร (PDF)">
+              {fileDialog.data
+                .filter((f) => f.file_type === "PDF")
+                .map((doc, i) => (
+                  <div key={i} style={{ marginBottom: "0.5rem" }}>
+                    <a
+                      href={`data:application/pdf;base64,${doc.file_data}`}
+                      download={doc.file_name}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {doc.file_name}
+                    </a>
+                  </div>
+                ))}
+            </TabPanel>
+          </TabView>
+        )}
       </Dialog>
     </>
   );

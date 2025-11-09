@@ -1,9 +1,9 @@
-import axios from 'axios';
-import { getSession } from '../utils/Crypto';
-import { URL_API } from './Config';
+import axios from "axios";
+import { getSession } from "../utils/Crypto";
+import { URL_API } from "./Config";
 
 const instance = axios.create({
-  baseURL: URL_API(''),
+  baseURL: URL_API(""),
   timeout: 500000,
   headers: {
     // Accept: 'application/json',
@@ -15,19 +15,38 @@ const instance = axios.create({
 instance.interceptors.request.use(function (config) {
   return {
     ...config,
-    headers: { Authorization: "Bearer " + getSession("login").result.token }
+    headers: { Authorization: "Bearer " + getSession("login").result.token },
   };
 });
 
 const responseBody = (response) => response.data;
 
 const requests = {
-  get: (url, body) => instance.get(url, body).then(responseBody),
-  post: (url, body, headers) => instance.post(url, body, headers).then(responseBody),
+  get: (url, params = {}, headers = {}) =>
+    instance.get(url, { params, ...headers }).then(responseBody),
+  post: (url, body, headers) =>
+    instance.post(url, body, headers).then(responseBody),
   put: (url, body) => instance.put(url, body).then(responseBody),
-  delete: (url, { }, headers) => instance.delete(url, headers).then(responseBody),
-  fromDataPost: (url, body, headers) => instance.post(url, body, { headers: { Authorization: "Bearer " + getSession("login").token, 'Content-Type': 'multipart/form-data' } }).then(responseBody),
-  fromDataPut: (url, body, headers) => instance.put(url, body, { headers: { Authorization: "Bearer " + getSession("login").token, 'Content-Type': 'multipart/form-data' } }).then(responseBody),
+  delete: (url, body = {}, headers = {}) =>
+    instance.delete(url, { data: body, ...headers }).then(responseBody),
+  fromDataPost: (url, body, headers) =>
+    instance
+      .post(url, body, {
+        headers: {
+          Authorization: "Bearer " + getSession("login").token,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(responseBody),
+  fromDataPut: (url, body, headers) =>
+    instance
+      .put(url, body, {
+        headers: {
+          Authorization: "Bearer " + getSession("login").token,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(responseBody),
 };
 
 export default requests;

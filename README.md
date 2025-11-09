@@ -16,14 +16,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin http://sitdev.dyndns.org/SenseInfoTech/DOL/dol_landsmaps_platform_webadmin.git
+<!-- git remote add origin http://sitdev.dyndns.org/SenseInfoTech/DOL/dol_landsmaps_platform_webadmin.git -->
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](http://sitdev.dyndns.org/SenseInfoTech/DOL/dol_landsmaps_platform_webadmin/-/settings/integrations)
+<!-- - [ ] [Set up project integrations](http://sitdev.dyndns.org/SenseInfoTech/DOL/dol_landsmaps_platform_webadmin/-/settings/integrations) -->
 
 ## Collaborate with your team
 

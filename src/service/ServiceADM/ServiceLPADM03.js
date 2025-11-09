@@ -47,6 +47,7 @@ const LPADM03Services = {
   AddData: async (body) => {
     const headers = await config_headers_fromData();
     const fd = new FormData();
+
     appendIf(
       fd,
       "announce_start_date_yyyymmdd",
@@ -65,9 +66,13 @@ const LPADM03Services = {
     appendIf(fd, "announce_type", String(body.announce_type || "1"));
     appendIf(fd, "record_status", body.record_status || "A");
 
-    if (Array.isArray(body.files) && body.files.length > 0) {
-      body.files.forEach((f) => fd.append("files", f));
-      fd.append("announce_file_types", "1");
+    if (Array.isArray(body.announce_file_types)) {
+      body.announce_file_types.forEach((t) => {
+        fd.append("announce_file_types", t);
+      });
+    } else {
+      fd.append("files", new Blob([], { type: "application/octet-stream" }));
+      fd.append("announce_file_types", "FILE");
     }
 
     console.log("Add FormData entries:");
@@ -76,91 +81,51 @@ const LPADM03Services = {
     return requests.post(URL_API("backOfficeApi/LPADM03/Add"), fd, headers);
   },
 
-  UpdateData: async (body) => {
-    const headers = await config_headers_fromData();
-    const login = await getSession("login");
-    const user = login?.result?.user_dto || {};
+ UpdateData: async (body) => {
+  const headers = await config_headers_fromData();
+  const login = await getSession("login");
+  const user = login?.result?.user_dto || {};
+  const fd = new FormData();
 
-    const fd = new FormData();
-    appendIf(fd, "announce_seq", body.announce_seq);
-    appendIf(
-      fd,
-      "announce_start_date_yyyymmdd",
-      fmtYMD_HHMM00(body.announce_start_date)
-    );
-    appendIf(
-      fd,
-      "announce_finish_date_yyyymmdd",
-      fmtYMD_HHMM00(body.announce_finish_date)
-    );
-    appendIf(fd, "announce_title_th", body.announce_title_th);
-    appendIf(fd, "announce_title_en", body.announce_title_en);
-    appendIf(fd, "announce_desc_th", body.announce_desc_th);
-    appendIf(fd, "announce_desc_en", body.announce_desc_en);
-    appendIf(fd, "announce_url", body.announce_url);
-    appendIf(fd, "announce_type", body.announce_type);
-    appendIf(fd, "record_status", body.record_status || "A");
+  appendIf(fd, "announce_seq", body.announce_seq);
+  appendIf(fd, "announce_start_date_yyyymmdd", fmtYMD_HHMM00(body.announce_start_date));
+  appendIf(fd, "announce_finish_date_yyyymmdd", fmtYMD_HHMM00(body.announce_finish_date));
+  appendIf(fd, "announce_title_th", body.announce_title_th);
+  appendIf(fd, "announce_title_en", body.announce_title_en);
+  appendIf(fd, "announce_desc_th", body.announce_desc_th);
+  appendIf(fd, "announce_desc_en", body.announce_desc_en);
+  appendIf(fd, "announce_url", body.announce_url);
+  appendIf(fd, "announce_type", body.announce_type);
+  appendIf(fd, "record_status", body.record_status || "A");
 
-    if (Array.isArray(body.files) && body.files.length > 0) {
-      const types = [];
-      body.files.forEach((f) => {
-        fd.append("files", f);
-        types.push(guessFileType(f));
-      });
-      types.forEach((t) => fd.append("announce_file_types", t));
-    }
+  // ✅ ส่วนนี้สำคัญมาก — ต้องเช็ก Array ของไฟล์จริง
+  if (Array.isArray(body.files) && body.files.length > 0) {
+    const types = [];
+    body.files.forEach((f) => {
+      fd.append("files", f);
+      types.push(guessFileType(f));
+    });
+    types.forEach((t) => fd.append("announce_file_types", t));
+  } else {
+    fd.append("files", new Blob([], { type: "application/octet-stream" }));
+    fd.append("announce_file_types", "FILE");
+  }
 
-    fd.append(
-      "user_dto",
-      JSON.stringify({
-        person_id: user.person_id,
-        register_seq: user.register_seq,
-        user_id: user.user_id,
-        fullname: user.fullname,
-        landoffice_id: user.landoffice_id,
-        landoffice_name: user.landoffice_name,
-        department_seq: user.department_seq,
-        department_name: user.department_name,
-        opt_seq: user.opt_seq,
-        opt_name: user.opt_name,
-        token: user.token,
-        token_expires_dtm: user.token_expires_dtm,
-        register_type_seq: user.register_type_seq,
-        register_type_name: user.register_type_name,
-      })
-    );
+  fd.append("user_dto", JSON.stringify(user));
 
-    console.log("Update FormData entries:");
-    for (let [k, v] of fd.entries()) console.log(k, v);
-
-    return requests.fromDataPut(
-      URL_API("backOfficeApi/LPADM03/Update"),
-      fd,
-      headers
-    );
-  },
+  return requests.fromDataPut(URL_API("backOfficeApi/LPADM03/Update"), fd, headers);
+},
 
   DeleteData: async (body) => {
     const authorization = await config_headers();
-    if (body?.announce_seq) {
-      return requests.delete(
-        URL_API(
-          `backOfficeApi/LPADM03/Delete?announce_seq=${body.announce_seq}`
-        ),
-        authorization
-      );
-    } else {
-      return requests.post(
-        URL_API("backOfficeApi/LPADM03/Delete"),
-        { announce_seq: body.announce_seq },
-        authorization
-      );
-    }
+    const announceSeq = body?.announce_seq ?? 0;
+    const url = URL_API(`backOfficeApi/LPADM03/Delete?id=${announceSeq}`);
+    return requests.delete(url, {}, authorization);
   },
 
   DeleteFile: async (body) => {
     const authorization = await config_headers();
-    return requests.post(
+    return requests.delete(
       URL_API("backOfficeApi/LPADM03/DeleteFile"),
       { announce_file_seq: body.announce_file_seq },
       authorization
@@ -175,14 +140,15 @@ const LPADM03Services = {
     );
   },
 
-  GetAnnounceFileList: async (body) => {
-    const headers = await config_headers();
-    return requests.post(
-      URL_API("backOfficeApi/LPADM03/GetAnnounceFileList"),
-      { announce_seq: body.announce_seq },
-      headers
-    );
-  },
+ GetAnnounceFileList: async (body) => {
+  const headers = await config_headers();
+  return requests.post(
+    URL_API(`backOfficeApi/LPADM03/GetAnnounceFileList?announce_seq=${body.announce_seq}`),
+    {},
+    headers
+  );
+},
+
 };
 
 export default LPADM03Services;

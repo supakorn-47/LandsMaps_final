@@ -4,43 +4,62 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { formatDateTH } from "../../../utils/DateUtil";
+import LPADM02Services from "../../../service/ServiceADM/ServiceLPADM02";
+import { Toast } from "primereact/toast";
+import { Dialog } from "primereact/dialog";
+
 import {
-  currentPageReportTemplate,
-  paginatorTemplate,
-  rowsPerPageOptions,
+  currentPageReportTemplate as utilCurrentPageReportTemplate,
+  paginatorTemplate as utilPaginatorTemplate,
+  rowsPerPageOptions as utilRowsPerPageOptions,
 } from "../../../utils/TableUtil";
 import useResponsivePaginator from "../../../hooks/useResponsivePaginator";
 import "../../../styles/global.css";
 
 export default function LPADM02List({
-  // adflag,
-  // setAdflag,
   onSetConsumer,
   onGetRegisterServiceClick,
   dataTable,
   setDialog,
   setDeleteDialog,
   setResetDialog,
-  onPageChange,
-  First,
-  Rows,
-  totalRecords,
+  onReload,
 }) {
-  const menu = useRef(null);
   const [globalFilter, setGlobalFilter] = useState(null);
+  const toast = useRef(null);
+
+  const [dialogDelete, setDialogDelete] = useState({
+    open: false,
+    data: null,
+    record_status: "C",
+    textConfirm: "",
+  });
 
   const {
     rows,
     pageLinkSize,
-    rowsPerPageOptions,
-    currentPageReportTemplate,
-    paginatorTemplate,
+    rowsPerPageOptions: hookRowsPerPageOptions,
+    currentPageReportTemplate: hookCurrentPageReportTemplate,
+    paginatorTemplate: hookPaginatorTemplate,
   } = useResponsivePaginator();
+
+  const safeSetDialog = setDialog || (() => {});
+  const safeSetResetDialog = setResetDialog || (() => {});
+  const safeOnSetConsumer = onSetConsumer || (() => {});
+  const safeOnGetRegisterServiceClick = onGetRegisterServiceClick || (() => {});
+
+  const loadDepartments = async () => {
+    try {
+      const opts = await LPADM02Services.getDepartmentOptions();
+      return opts || [];
+    } catch {
+      return [];
+    }
+  };
 
   const header = () => {
     const onClick = () => {
-      // setAdflag(false);
-      setDialog({ dialog: true, action: "เพิ่ม" });
+      safeSetDialog({ dialog: true, action: "เพิ่ม" });
     };
     return (
       <div className="table-header">
@@ -48,7 +67,7 @@ export default function LPADM02List({
           <Button
             label="เพิ่มผู้ใช้งาน"
             icon="pi pi-plus"
-            onClick={() => onClick()}
+            onClick={onClick}
             className="p-button-rounded p-button-info"
           />
         </div>
@@ -57,7 +76,7 @@ export default function LPADM02List({
             <i className="pi pi-search" />
             <InputText
               type="search"
-              placeholder="ค้นหาข้อมูล..."
+              placeholder="ค้นหาข้อมูล"
               onInput={(e) => setGlobalFilter(e.target.value)}
             />
           </span>
@@ -66,39 +85,105 @@ export default function LPADM02List({
     );
   };
 
-  // ✅ ปุ่มแก้ไข
-  const btnEdit = (rowData) => {
+  const btnEdit = (row) => {
+    const onEdit = async () => {
+      let deptOptions = [];
+      try {
+        deptOptions = await loadDepartments();
+      } catch {}
+      let full = null;
+      try {
+        full = await LPADM02Services.getBySeq(row.register_seq);
+      } catch {}
+
+      const merged = { ...(row || {}), ...(full || {}) };
+
+      safeSetDialog({
+        dialog: true,
+        action: "แก้ไข",
+        data: {
+          ...merged,
+          __deptOptions: deptOptions,
+          __skipLoadDept: true,
+        },
+      });
+    };
+
     return (
-      <div className="action-buttons">
+      <div style={{ textAlign: "center" }}>
         <Button
-          onClick={() =>
-            setDialog({ dialog: true, action: "แก้ไข", data: rowData })
-          }
+          onClick={onEdit}
           icon="pi pi-pencil"
           className="p-button-rounded p-button-warning"
-          tooltip="แก้ไข"
+          tooltip="คลิกเพื่อ แก้ไข"
           tooltipOptions={{ position: "top" }}
         />
       </div>
     );
   };
 
-  // ✅ ปุ่มลบ
   const btnDelete = (rowData) => {
     return (
-      <div className="action-buttons">
+      <div style={{ textAlign: "center" }}>
         <Button
-          onClick={() => setDeleteDialog({ open: true, data: rowData })}
+          disabled={rowData.record_status === "C"}
+          onClick={() =>
+            setDialogDelete({
+              open: true,
+              data: rowData,
+              record_status: "C",
+              textConfirm: `คุณต้องการลบข้อมูล "${rowData.person_fullname}" ใช่หรือไม่ ?`,
+            })
+          }
+          style={{ marginLeft: 5 }}
           icon="pi pi-trash"
           className="p-button-rounded p-button-danger"
-          tooltip="ลบ"
+          tooltip="คลิกเพื่อลบข้อมูล"
           tooltipOptions={{ position: "top" }}
         />
       </div>
     );
   };
 
-  // ✅ ปุ่มรีเซ็ตรหัสผ่าน
+  const onDelete = async () => {
+    try {
+      const res = await LPADM02Services.deleteData(
+        dialogDelete.data.register_seq
+      );
+      if (res?.status === 200) {
+        toast.current.show({
+          severity: "success",
+          summary: "สำเร็จ",
+          detail: `ยกเลิกข้อมูล ${dialogDelete.data.person_fullname} สำเร็จ`,
+          life: 3000,
+        });
+        if (onReload) onReload();
+      } else {
+        toast.current.show({
+          severity: "warn",
+          summary: "ไม่สำเร็จ",
+          detail: "ไม่สามารถยกเลิกข้อมูลได้",
+          life: 3000,
+        });
+      }
+    } catch (err) {
+      toast.current.show({
+        severity: "error",
+        summary: "ผิดพลาด",
+        detail: "เกิดข้อผิดพลาดในการยกเลิกข้อมูล",
+        life: 3000,
+      });
+      console.error(err);
+    } finally {
+      setDialogDelete({
+        open: false,
+        data: null,
+        record_status: "C",
+        textConfirm: "",
+      });
+    }
+  };
+
   const btnResetPassword = (rowData) => {
     const disabled =
       rowData.register_ad_flag === "1" ||
@@ -108,7 +193,7 @@ export default function LPADM02List({
     return (
       <div className="action-buttons">
         <Button
-          onClick={() => setResetDialog({ open: true, data: rowData })}
+          onClick={() => safeSetResetDialog({ open: true, data: rowData })}
           icon="pi pi-replay"
           className={`p-button-rounded p-button-info ${
             disabled ? "disabled" : ""
@@ -121,28 +206,26 @@ export default function LPADM02List({
     );
   };
 
-  // ✅ แสดงสถานะ
   const statusRecord = (rowData) => {
+    const isActive = rowData.record_status === "N";
     return (
       <div className="status-badge">
         <span
           className={`status-indicator ${
-            rowData.record_status === "N" ? "status-active" : "status-inactive"
+            isActive ? "status-active" : "status-inactive"
           }`}
         >
-          {rowData.record_status === "N" ? "ใช้งาน" : "ยกเลิก"}
+          {isActive ? "ใช้งาน" : "ยกเลิก"}
         </span>
       </div>
     );
   };
 
-  // ✅ Format วันที่
   const formatDate = (rowData, isTime, checkColumn) => {
-    const datevalue = rowData[`${checkColumn}`];
+    const datevalue = rowData[checkColumn];
     return formatDateTH(datevalue, isTime);
   };
 
-  // ✅ ปุ่มกำหนด Consumer
   const onConfigConsumerClick = (rowData) => {
     const disabled =
       rowData.register_type_seq === 1 ||
@@ -152,7 +235,7 @@ export default function LPADM02List({
     return (
       <div className="action-buttons">
         <Button
-          onClick={() => onSetConsumer(rowData)}
+          onClick={() => safeOnSetConsumer(rowData)}
           icon="pi pi-key"
           className={`p-button-rounded p-button-help ${
             disabled ? "disabled" : ""
@@ -165,7 +248,6 @@ export default function LPADM02List({
     );
   };
 
- 
   const onServiceClick = (rowData) => {
     const disabled =
       rowData.register_type_seq === 1 ||
@@ -176,7 +258,7 @@ export default function LPADM02List({
     return (
       <div className="action-buttons">
         <Button
-          onClick={() => onGetRegisterServiceClick(rowData)}
+          onClick={() => safeOnGetRegisterServiceClick(rowData)}
           icon="pi pi-cog"
           className={`p-button-rounded p-button-info ${
             disabled ? "disabled" : ""
@@ -190,9 +272,32 @@ export default function LPADM02List({
   };
 
   const actionBodyTxt = (text) => {
-    if (!text || text.trim() === "") return "-";
+    if (typeof text !== "string" || text.trim() === "") return "-";
     return <div className="text-content">{text}</div>;
   };
+
+  const departmentCell = (row) => {
+    const v =
+      row?.department ||
+      row?.department_name_th ||
+      row?.department_name ||
+      row?.register_department_name ||
+      row?.landoffice_name_th ||
+      row?.office_name_th ||
+      "-";
+    return actionBodyTxt(v);
+  };
+
+  const emailCell = (row) => {
+    const v = row?.person_email || row?.email || "-";
+    return <div className="text-content">{v}</div>;
+  };
+
+  const finalRowsPerPageOptions =
+    hookRowsPerPageOptions || utilRowsPerPageOptions;
+  const finalCurrentPageReportTemplate =
+    hookCurrentPageReportTemplate || utilCurrentPageReportTemplate;
+  const finalPaginatorTemplate = hookPaginatorTemplate || utilPaginatorTemplate;
 
   return (
     <>
@@ -209,21 +314,17 @@ export default function LPADM02List({
         scrollDirection="horizontal"
         pageLinkSize={pageLinkSize}
         rows={rows}
-        rowsPerPageOptions={rowsPerPageOptions}
-        paginatorTemplate={paginatorTemplate}
-        currentPageReportTemplate={currentPageReportTemplate}
+        rowsPerPageOptions={finalRowsPerPageOptions}
+        paginatorTemplate={finalPaginatorTemplate}
+        currentPageReportTemplate={finalCurrentPageReportTemplate}
         paginator
       >
-        <Column
-          field="row_num"
-          header="ลำดับ"
-          style={{ textAlign: "center", width: 80 }}
-        />
+        <Column field="row_num" header="ลำดับ" style={{ width: 80 }} />
         <Column
           field="create_dtm"
           header="วันเวลาลงทะเบียน"
           body={(e) => formatDate(e, true, "create_dtm")}
-          style={{ textAlign: "center", width: 150 }}
+          style={{ width: 150 }}
         />
         <Column
           field="register_type_name"
@@ -237,8 +338,9 @@ export default function LPADM02List({
           style={{ width: 200 }}
         />
         <Column
-          field="landoffice_name"
+          field="department"
           header="หน่วยงาน"
+          body={departmentCell}
           style={{ width: 300 }}
         />
         <Column
@@ -246,7 +348,7 @@ export default function LPADM02List({
           header="ชื่อ-สกุล"
           style={{ width: 300 }}
         />
-        <Column field="person_email" header="อีเมล" style={{ width: 300 }} />
+        <Column header="อีเมล" body={emailCell} style={{ width: 300 }} />
         <Column
           field="record_status"
           body={statusRecord}
@@ -269,8 +371,43 @@ export default function LPADM02List({
           style={{ width: 150 }}
         />
         <Column header="แก้ไข" body={btnEdit} style={{ width: 80 }} />
-        <Column header="ลบ" body={btnDelete} style={{ width: 80 }} />
+        <Column header="ยกเลิก" body={btnDelete} style={{ width: 80 }} />
       </DataTable>
+
+      <Dialog
+        header="การยืนยัน"
+        visible={dialogDelete.open}
+        style={{ width: "400px" }}
+        onHide={() =>
+          setDialogDelete({
+            open: false,
+            data: null,
+            record_status: "C",
+            textConfirm: "",
+          })
+        }
+        footer={
+          <div className="flex justify-content-end gap-2">
+            <Button
+              label="ยกเลิก"
+              className="p-button-secondary p-button-rounded"
+              onClick={() =>
+                setDialogDelete({
+                  open: false,
+                  data: null,
+                  record_status: "C",
+                  textConfirm: "",
+                })
+              }
+            />
+            <Button label="ตกลง" className="p-button-info" onClick={onDelete} />
+          </div>
+        }
+      >
+        <p>{dialogDelete.textConfirm}</p>
+      </Dialog>
+
+      <Toast ref={toast} position="top-right" />
     </>
   );
 }

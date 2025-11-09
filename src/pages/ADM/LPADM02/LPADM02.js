@@ -1,27 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
+// src/pages/ADM/LPADM02/LPADM02.js
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Toast } from "primereact/toast";
 import { Loading } from "../../../components/Loading/Loading";
-import { Button } from "primereact/button";
 import Iframe from "react-iframe";
 import { Dialog } from "primereact/dialog";
-import ConsumerDialog from "./LPADM02Dialog";
-
-import {
-  formatDateTH2,
-  formatDateTH_full2,
-  formatDateAPI,
-} from "../../../utils/DateUtil";
-import { getTextMenu } from "../../../utils/MenuUtil";
-
-//PAGE
+import { formatDateAPI } from "../../../utils/DateUtil";
 import LPADM02Search from "./LPADM02Search";
 import LPADM02List from "./LPADM02List";
 import LPADM02Dialog from "./LPADM02Dialog";
-
-//SERVICE
 import LPADM02Services from "../../../service/ServiceADM/ServiceLPADM02";
-import { masterService } from "../../../service/ServiceMaster/MasterService";
-
 import CustomCard from "../../../components/CustomCard/CustomCard";
 import PageHeader from "../../../components/PageHeader/PageHeader";
 
@@ -30,21 +17,74 @@ export default function LPADM02() {
   const [dataTable, setDataTable] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [msUserGroups, setMsUserGroups] = useState([]);
+  const [msAgencies, setMsAgencies] = useState([]);
+  const [msProvinces, setMsProvinces] = useState([]);
+  const [registerDepartment, setRegisterDepartment] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const opts = await LPADM02Services.getDepartmentOptions();
+        setRegisterDepartment(opts || []);
+      } catch {}
+      onGetDataList();
+    })();
+  }, []);
+
+  const deptMap = useMemo(
+    () =>
+      Object.fromEntries(
+        (registerDepartment || []).map((d) => [String(d.value), d.label])
+      ),
+    [registerDepartment]
+  );
+
+  const resolveDeptName = (row, map) => {
+    const ids = [
+      row?.department_seq,
+      row?.landoffice_seq,
+      row?.office_seq,
+      row?.departmentCode,
+      row?.landoffice_id,
+      row?.department_id,
+    ]
+      .map((v) => (v === 0 || v === -1 || v == null ? "" : String(v)))
+      .filter(Boolean);
+
+    for (const id of ids) if (map[id]) return map[id];
+
+    const names = [
+      row?.department_name_th,
+      row?.department_name,
+      row?.register_department_name,
+      row?.dept_name,
+      row?.department_th,
+      row?.departmentName,
+      row?.landoffice_name_th,
+      row?.landoffice_name,
+      row?.office_name_th,
+      row?.office_name,
+      row?.agency_name,
+    ].filter((v) => typeof v === "string" && v.trim() !== "");
+
+    return names[0] || "-";
+  };
+
+  const tableRows = useMemo(() => dataTable, [dataTable]);
+
   const [dialog, setDialog] = useState({
     dialog: false,
     action: "",
     data: null,
   });
   const [submitted, setSubmitted] = useState(false);
-
   const [dialogPDF, setDialogPDF] = useState({ open: false, pdfURL: null });
-  const [selectedTF, setSelectedTF] = useState([]);
 
-  // SEARCH
   const [searchData, setSearchData] = useState({
     person_fullname: "",
     register_type_seq: -1,
-    department_seq: 0,
+    department_seq: "",
     create_dtm_from: new Date(),
     create_dtm_to: new Date(),
     province_seq: -1,
@@ -54,100 +94,177 @@ export default function LPADM02() {
     source_seq: -1,
   });
 
-  const [msDataSource, setMsDataSource] = useState([]);
-  const [msDataTransferGroup, setMsDataTransferGroup] = useState([]);
-
-  useEffect(() => {
-    onGetDataList();
-
-    // ✅ โหลดแหล่งข้อมูล (แก้ให้ไม่ซ้อน URL)
-    masterService("GetDataSource?mode=0&source_process=1", {}, "GET").then(
-      (res) => {
-        setMsDataSource(res?.result || []);
+  const openDialog = (payload) => {
+    const data = payload?.data || {};
+    setDialog({
+      ...payload,
+      data: {
+        ...data,
+        __deptOptions: registerDepartment || [],
+        __skipLoadDept: true,
       },
-      (err) => {
-        const status =
-          err?.response?.data?.status || err?.response?.status || "-";
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้";
-        showMessages(
-          "error",
-          `เกิดข้อผิดพลาด Status Code: ${status}`,
-          message
-        );
-      }
-    );
-
-    masterService("GetTransferDataGroup?mode=0", {}, "GET").then(
-      (res) => {
-        setMsDataTransferGroup(res?.result || []);
-      },
-      (err) => {
-        const status =
-          err?.response?.data?.status || err?.response?.status || "-";
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้";
-        showMessages(
-          "error",
-          `เกิดข้อผิดพลาด Status Code: ${status}`,
-          message
-        );
-      }
-    );
-  }, []);
-
-  const onGetTransferDataGroup = (source_schema = "") => {
-    const url = `GetTransferDataGroup?mode=1&source_schema=${source_schema}`;
-    masterService(url, {}, "GET").then((res) => {
-      let temp = res?.result || [];
-      if (temp.length > 0) temp.splice(0, 1);
-      setMsDataTransferGroup(temp);
     });
   };
 
-  const onGetDataList = () => {
-    let transfer_data_group_seq = "-1";
-    let index = 1;
-    if (selectedTF && selectedTF.length > 0) {
-      transfer_data_group_seq = "";
-      selectedTF.forEach((element) => {
-        if (selectedTF.length === index || selectedTF.length === 1) {
-          transfer_data_group_seq += element + "";
-        } else {
-          transfer_data_group_seq += element + ",";
-        }
-        index++;
-      });
-    }
+  useEffect(() => {
+    const bootstrap = async () => {
+      try {
+        const deptOpts = await LPADM02Services.getDepartmentOptions();
+        setRegisterDepartment(deptOpts || []);
+      } catch {}
 
+      onGetDataList();
+
+      LPADM02Services.MasterGetRegisterType(0, "")
+        .then((data) => {
+          const raw = data?.result || data?.data?.result || [];
+          const mapped = raw.map((it) => ({
+            label:
+              it.register_type_name ||
+              it.label ||
+              String(it.register_type_seq || it.value || ""),
+            value: String(it.register_type_seq || it.value || ""),
+          }));
+          setMsUserGroups(mapped);
+          const onlyAgencies = mapped.filter(
+            (x) => x.value === "1" || x.value === "2"
+          );
+          setMsAgencies(onlyAgencies);
+        })
+        .catch(() => {});
+
+      LPADM02Services.MasterGetProvince()
+        .then((res) => {
+          const list = res?.result || res?.data?.result || [];
+          const opts = list.map((p) => ({
+            label:
+              p.label ??
+              p.province_name_th ??
+              p.province_name ??
+              p.name ??
+              String(p.province_code ?? p.code ?? ""),
+            value: String(
+              p.value ?? p.province_seq ?? p.province_code ?? p.code ?? "-1"
+            ),
+          }));
+          setMsProvinces(opts);
+        })
+        .catch(() => {});
+    };
+    bootstrap();
+  }, []);
+
+  const buildPayload = (form) => ({
+    register_seq: form.register_seq ?? 0,
+    person_id: form.person_id ?? 0,
+    person_firstnameth: form.person_firstnameth || "",
+    person_middlenameth: form.person_middlenameth || "",
+    person_lastnameth: form.person_lastnameth || "",
+    person_birthdate: form.person_birthdate
+      ? new Date(form.person_birthdate)
+      : null,
+
+    person_phone: form.person_phone || "",
+    person_email: form.person_email || "",
+    person_position: form.person_position || "",
+    province_seq: Number(form.province_seq) || 0,
+    amphur_seq: Number(form.amphur_seq) || 0,
+    landoffice_id: form.landoffice_id || "",
+    department_seq: Number(form.department_seq) || 0,
+    opt_seq: Number(form.opt_seq) || 0,
+    department_phone: form.department_phone || "",
+    user_id: form.user_id || "",
+    user_password: form.user_password || "",
+    register_type_seq: Number(form.register_type_seq) || 0,
+    approve_flag: form.approve_flag ?? 1,
+    register_ad_flag: form.register_ad_flag || "0",
+    register_openid_token: form.register_openid_token || "",
+    register_objective: form.register_objective || "",
+    remark: form.remark || "",
+    record_status: form.record_status || "N",
+    operating_system_list:
+      form.operating_system_list?.length > 0
+        ? form.operating_system_list
+        : [
+            {
+              operating_system_seq: 0,
+              operating_system_other: "",
+              record_status: "N",
+            },
+          ],
+  });
+
+  const handleSubmitForm = async (form) => {
+    try {
+      const payload = buildPayload(form);
+      if (dialog.action === "แก้ไข") {
+        await LPADM02Services.updateData(payload);
+      } else {
+        await LPADM02Services.addData(payload);
+      }
+      setDialog({ dialog: false, action: "", data: null });
+      onGetDataList();
+    } catch (err) {
+      console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล", err);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    }
+  };
+
+  const onGetDataList = () => {
     setLoading(true);
     LPADM02Services.getDataList({
       ...searchData,
-      start_date: formatDateAPI(searchData.start_date),
-      end_date: formatDateAPI(searchData.end_date),
+      create_dtm_from: formatDateAPI(searchData.create_dtm_from),
+      create_dtm_to: formatDateAPI(searchData.create_dtm_to),
       source_seq: parseInt(searchData.source_seq ?? -1),
-      transfer_data_seq: transfer_data_group_seq,
-      source_schema: searchData.source_seq
-        ? searchData.source_seq + ""
-        : "",
     }).then(
       (res) => {
         setLoading(false);
         if (res?.status === 200) {
-          setDataTable(res?.result || []);
-        } else {
-          showMessages(
-            "error",
-            `เกิดข้อผิดพลาด Status Code: ${res?.status || "-"}`,
-            `${res?.errors?.message || "ไม่พบข้อมูล"}`
-          );
+          const rows = (res?.result || []).map((r) => {
+            const ids = [
+              r?.department_seq,
+              r?.landoffice_seq,
+              r?.office_seq,
+              r?.departmentCode,
+              r?.landoffice_id,
+              r?.department_id,
+            ]
+              .map((v) => (v === 0 || v === -1 || v == null ? "" : String(v)))
+              .filter(Boolean);
+
+            let nameFromIds = "";
+            for (const id of ids) {
+              if (deptMap[id]) {
+                nameFromIds = deptMap[id];
+                break;
+              }
+            }
+
+            const nameFromRow =
+              r?.department_name_th ||
+              r?.department_name ||
+              r?.register_department_name ||
+              r?.dept_name ||
+              r?.department_th ||
+              r?.departmentName ||
+              r?.landoffice_name_th ||
+              r?.landoffice_name ||
+              r?.office_name_th ||
+              r?.office_name ||
+              r?.agency_name ||
+              "";
+
+            return {
+              ...r,
+              department: (nameFromIds || nameFromRow || "-").trim() || "-",
+            };
+          });
+
+          setDataTable(rows);
         }
       },
-      function (err) {
+      (err) => {
         setLoading(false);
         if (err?.response?.data?.status === 401) {
           alert("Authorized หมดอายุ กรุณาเข้าสู่ระบบใหม่");
@@ -159,48 +276,16 @@ export default function LPADM02() {
     );
   };
 
-  const showMessages = (severity = "error", summary = "", detail = "") => {
-    toast.current.show({
-      severity,
-      summary,
-      detail,
-      life: 8000,
-    });
-  };
-
   return (
     <div className="page-wrapper">
       <Loading loading={loading} />
       <Toast ref={toast} position="top-right" />
 
-      {/* Header */}
       <CustomCard
         title={
           <PageHeader
             config={{
               title: "จัดการสิทธิผู้ใช้งาน",
-              actionButton: (
-                <div>
-                  <Button
-                    style={{ height: "35px", color: "green" }}
-                    label="ส่งออก Excel"
-                    icon="pi pi-file-excel"
-                    className="p-button-info p-button-rounded p-button-outlined"
-                    tooltip="คลิกเพื่อ ส่งออก Excel"
-                    tooltipOptions={{ position: "top" }}
-                    disabled={dataTable.length === 0}
-                  />
-                  <Button
-                    style={{ height: "35px", marginLeft: "5px" }}
-                    label="ส่งออก PDF"
-                    icon="pi pi-file-pdf"
-                    className="p-button-danger p-button-rounded p-button-outlined"
-                    tooltip="คลิกเพื่อ ส่งออก PDF"
-                    tooltipOptions={{ position: "top" }}
-                    disabled={dataTable.length === 0}
-                  />
-                </div>
-              ),
             }}
           />
         }
@@ -209,31 +294,33 @@ export default function LPADM02() {
             searchData={searchData}
             setSearchData={setSearchData}
             onGetDataList={onGetDataList}
-            msDataSource={msDataSource}
-            msDataTransferGroup={msDataTransferGroup}
-            selectedTF={selectedTF}
-            setSelectedTF={setSelectedTF}
-            onGetTransferDataGroup={onGetTransferDataGroup}
+            msProvinces={msProvinces}
+            msUserGroups={msUserGroups}
+            msAgencies={msAgencies}
+            registerDepartment={registerDepartment}
           />
         }
       />
 
-      {/* List */}
       <CustomCard>
-        <LPADM02List dataTable={dataTable} setDialog={setDialog} />
+        <LPADM02List
+          dataTable={tableRows}
+          setDialog={openDialog}
+          onReload={onGetDataList}
+        />
       </CustomCard>
 
-      {/* Dialog CRUD */}
       {dialog.dialog && (
         <LPADM02Dialog
           dialog={dialog}
           setDialog={setDialog}
           submitted={submitted}
           setSubmitted={setSubmitted}
+          submitForm={handleSubmitForm}
+          msUserGroups={msUserGroups}
         />
       )}
 
-      {/* Dialog PDF */}
       {dialogPDF.open && (
         <Dialog
           header="PDF"

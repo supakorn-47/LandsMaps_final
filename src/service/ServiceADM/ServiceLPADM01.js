@@ -1,6 +1,6 @@
 import axios from "axios";
 import { config_headers, config_headers_fromData, URL_API } from "../Config";
-
+var dateFormat = require("dateformat");
 const buildUrl = (path) => {
   const ensured = "/" + String(path || "").replace(/^\/+/, "");
   return URL_API(ensured);
@@ -8,18 +8,23 @@ const buildUrl = (path) => {
 
 export const LPADM01GetDataList = async (body) => {
   const authorization = await config_headers();
+
   const payload = {
     approve_flag: body.approve_flag ?? 0,
-    person_fullname: body.person_fullname?.trim() || "%",
-    full_name: body.full_name?.trim() || "%",
+    // person_fullname: body.person_fullname?.trim() || "%",
+    full_name: body.full_name?.trim() || "string",
+
+    create_dtm_from:
+      body.create_dtm_from && body.create_dtm_from !== ""
+        ? dateFormat(body.create_dtm_from, "yyyymmdd")
+        : "string",
+    create_dtm_to:
+      body.create_dtm_to && body.create_dtm_to !== ""
+        ? dateFormat(body.create_dtm_to, "yyyymmdd")
+        : "string",
     register_type_seq: Number(body.register_type_seq) || 0,
-    create_dtm_from: body.create_dtm_from
-      ? body.create_dtm_from.toISOString().split("T")[0]
-      : "",
-    create_dtm_to: body.create_dtm_to
-      ? body.create_dtm_to.toISOString().split("T")[0]
-      : "",
   };
+
   const url = URL_API("backOfficeApi/LPADM01/Get");
   const res = await axios.post(url, payload, authorization);
   return res.data;
@@ -57,7 +62,7 @@ export const LPADM01DeleteRegisterFile = async (register_file_seq) => {
   const url = URL_API(
     `backOfficeApi/LPADM01/DeleteRegisterFile?register_file_seq=${register_file_seq}`
   );
-  const res = await axios.delete(url, authorization);
+  const res = await axios.delete(url, { headers: authorization.headers });
   return res.data;
 };
 
@@ -77,6 +82,18 @@ export const LPADM01SendMail = async (email) => {
   return res.data;
 };
 
+export const MasterGetRegisterType = async (
+  mode = 0,
+  register_type_seq = 0
+) => {
+  const authorization = await config_headers();
+  const url = URL_API(
+    `backOfficeApi/Master/GetRegisterType?mode=${mode}&register_type_seq=${register_type_seq}`
+  );
+  const res = await axios.get(url, authorization);
+  return res.data;
+};
+
 export default {
   LPADM01GetDataList,
   LPADM01ApproveUserData,
@@ -84,4 +101,5 @@ export default {
   LPADM01DeleteRegisterFile,
   LPADM01GetRegisterFileList,
   LPADM01SendMail,
+  MasterGetRegisterType,
 };

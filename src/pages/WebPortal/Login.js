@@ -31,18 +31,19 @@ const App = (props) => {
     localStorage.clear();
     const urlParams = new URLSearchParams(window.location.search);
     const myParam = urlParams.get("saml");
-    
+
     if (myParam != null && myParam !== "") {
       setLoading(true);
       loginSAMLService({ saml: myParam }).then(
         (res) => {
           if (res.result) {
-            setSession("login", res.result[0]);
+            setSession("login", res);
+
             window.location = "#/portal";
             console.log(" window :");
           } else {
             showMessages("warn", `กรุณาตรวจสอบ`, res.errors.message);
-             window.location = "#/portal";
+            window.location = "#/portal";
           }
           console.log("showMessages :");
           setLoading(false);
@@ -64,8 +65,6 @@ const App = (props) => {
   const onLoginClick = () => {
     if (username === "" || password === "") {
       showMessages("warn", `แจ้งเตือน`, "กรุณาระบุข้อมูลให้ถูกต้อง");
-   ;
-      
     } else {
       getLoginService();
       //  window.location = "#/portal";
@@ -91,105 +90,105 @@ const App = (props) => {
     });
   };
 
- 
+  // loginService({
+  //   username: username,
+  //   password: password,
+  // }).then(
+  //   (res) => {
+  //     if (res.token !== null && res.token !== "" && res.result) {
+  //       setSession("login", res);
+  //       window.location = "#/portal";
+  //     } else {
+  //       showMessages("warn", `กรุณาตรวจสอบ`, res.errors.message);
+  //     }
+  //   },
+  //   function (err) {
+  //     setLoading(false);
+  //     showMessages("error", `เกิดข้อผิดพลาด`, "กรุณาตรวจสอบการเชื่อมต่อ");
+  //   }
+  // );
 
-  
-      // loginService({
-      //   username: username,
-      //   password: password,
-      // }).then(
-      //   (res) => {
-      //     if (res.token !== null && res.token !== "" && res.result) {
-      //       setSession("login", res);
-      //       window.location = "#/portal";
-      //     } else {
-      //       showMessages("warn", `กรุณาตรวจสอบ`, res.errors.message);
-      //     }
-      //   },
-      //   function (err) {
-      //     setLoading(false);
-      //     showMessages("error", `เกิดข้อผิดพลาด`, "กรุณาตรวจสอบการเชื่อมต่อ");
-      //   }
-      // );
+  const getLoginService = async () => {
+    console.log("getLoginService :  username:", username);
+    console.log("getLoginService :  password:", password);
+    console.log("getLoginService :  type:", type);
 
-const getLoginService = async () => {
-  console.log("getLoginService :  username:", username);
-  console.log("getLoginService :  password:", password);
-  console.log("getLoginService :  type:", type);
+    setLoading(true);
 
-  setLoading(true);
+    if (type === 0) {
+      try {
+        const resp = await loginService({
+          username: username,
+          password: password,
+        });
 
-  if (type === 0) {
-    try {
-      const resp = await loginService({
-        username: username,
-        password: password,
-      });
-      
-      console.log("getLoginService resp :", resp);
+        console.log("getLoginService resp :", resp);
 
-      if (resp?.token) {
-        // ✅ จัดรูปแบบให้ตรงกับที่ service อื่น (เช่น LPASM01) ใช้อยู่
-        const loginData = {
-          result: {
-            token: resp.token,
-            user_dto: {
-              username: resp.username,
-              role: resp.role,
-            },
-          },
-        };
-
-        // ✅ บันทึก token ลง localStorage
-        localStorage.setItem("login", JSON.stringify(loginData));
-
-        // ✅ ไปหน้า portal หลังเข้าสู่ระบบสำเร็จ
-        window.location = "#/portal";
-      } else {
-        showMessages("warn", `กรุณาตรวจสอบ`, "ไม่พบ Token จากเซิร์ฟเวอร์");
-      }
-    } catch (err) {
-      setLoading(false);
-      showMessages("error", `เกิดข้อผิดพลาด`, "กรุณาตรวจสอบการเชื่อมต่อ");
-    }
-  } else if (type === 1) {
-    LoginADService({
-      user_id: username,
-      user_password: password,
-      ad_flag: 1,
-      ip_address: "",
-    }).then(
-      (res) => {
-        if (res.result) {
-          // ✅ บันทึกข้อมูลเข้าสู่ระบบ AD ลง localStorage เช่นกัน
+        if (resp?.token) {
+          // ✅ จัดรูปแบบให้ตรงกับที่ service อื่น (เช่น LPASM01) ใช้อยู่
           const loginData = {
             result: {
-              token: res.token || "",
-              user_dto: res.result?.user_dto || {
-                username: username,
-                role: "ADUser",
+              token: resp.token,
+              user_dto: {
+                username: resp.username,
+                role: resp.role,
               },
             },
           };
+
+          // ✅ บันทึก token ลง localStorage
           localStorage.setItem("login", JSON.stringify(loginData));
 
+          // ✅ ไปหน้า portal หลังเข้าสู่ระบบสำเร็จ
           window.location = "#/portal";
         } else {
-          showMessages("warn", `กรุณาตรวจสอบ`, res.errors?.message || "ไม่สามารถเข้าสู่ระบบได้");
+          showMessages("warn", `กรุณาตรวจสอบ`, "ไม่พบ Token จากเซิร์ฟเวอร์");
         }
-        setLoading(false);
-      },
-      function (err) {
+      } catch (err) {
         setLoading(false);
         showMessages("error", `เกิดข้อผิดพลาด`, "กรุณาตรวจสอบการเชื่อมต่อ");
       }
-    );
-  } else {
-    showMessages("warn", `แจ้งเตือน`, "กรุณาระบุข้อมูลให้ถูกต้อง");
-    setLoading(false);
-  }
-};
+    } else if (type === 1) {
+      LoginADService({
+        user_id: username,
+        user_password: password,
+        ad_flag: 1,
+        ip_address: "",
+      }).then(
+        (res) => {
+          if (res.result) {
+            // ✅ บันทึกข้อมูลเข้าสู่ระบบ AD ลง localStorage เช่นกัน
+            const loginData = {
+              result: {
+                token: res.token || "",
+                user_dto: res.result?.user_dto || {
+                  username: username,
+                  role: "ADUser",
+                },
+              },
+            };
+            localStorage.setItem("login", JSON.stringify(loginData));
 
+            window.location = "#/portal";
+          } else {
+            showMessages(
+              "warn",
+              `กรุณาตรวจสอบ`,
+              res.errors?.message || "ไม่สามารถเข้าสู่ระบบได้"
+            );
+          }
+          setLoading(false);
+        },
+        function (err) {
+          setLoading(false);
+          showMessages("error", `เกิดข้อผิดพลาด`, "กรุณาตรวจสอบการเชื่อมต่อ");
+        }
+      );
+    } else {
+      showMessages("warn", `แจ้งเตือน`, "กรุณาระบุข้อมูลให้ถูกต้อง");
+      setLoading(false);
+    }
+  };
 
   const onTypeChange = (e) => {
     setType(e.value);
@@ -298,4 +297,4 @@ const getLoginService = async () => {
   );
 };
 
-export default App ;
+export default App;

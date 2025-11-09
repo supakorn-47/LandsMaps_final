@@ -65,17 +65,19 @@ const updateData = async (data) => {
 }
 
 const deleteData = async (data) => {
+  console.log(data);
+  
   const { token } = await getUserInfo();
 
   const payload = {
-    register_type_seq: Number(data.register_type_seq || 0),
+    register_type_seq: Number(data || 0),
     record_status: "C",
   };
 
   console.log("[Delete Payload]", payload);
 
   try {
-    // ใช้ axios.request() เพื่อแน่ใจว่าส่ง body ไปกับ DELETE ได้
+   
     const res = await api.request({
       method: "DELETE",
       url: "/Delete",

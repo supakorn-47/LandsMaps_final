@@ -14,17 +14,26 @@ export default function LPADM06List({ dataTable }) {
   const [globalFilter, setGlobalFilter] = useState(null);
 
   const header = (
-    <div className="table-header">
-      <span className="p-input-icon-left"></span>
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          type="search"
-          placeholder="ค้นหา"
-          style={{ height: "38px", width: 400 }}
-          onInput={(e) => setGlobalFilter(e.target.value)}
-        />
-      </span>
+    <div
+      className="table-header"
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        width: "100%",
+      }}
+    >
+      <div className="header-right">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            type="search"
+            placeholder="ค้นหา"
+            style={{ height: "38px", width: 400 }}
+            onInput={(e) => setGlobalFilter(e.target.value)}
+          />
+        </span>
+      </div>
     </div>
   );
 

@@ -35,7 +35,9 @@ export default function LPADM04List({
           className="p-button-rounded p-button-info"
           label="เพิ่มแบบสำรวจความพึงพอใจ"
           icon="pi pi-plus"
-          onClick={() => setDialog({ dialog: true, action: "บันทึก" })}
+          onClick={() =>
+            setDialog({ dialog: true, action: "บันทึก", data: null })
+          }
         />
       </div>
       <div className="header-right">

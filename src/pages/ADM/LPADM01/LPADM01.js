@@ -37,24 +37,27 @@ export default function LPADM01() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [dialogPDF, setDialogPDF] = useState(false);
   const [searchData, setSearchData] = useState({
-    person_fullname: "",
     create_dtm_from: new Date(),
     create_dtm_to: new Date(),
-    rowofpage: 10000,
+    approve_flag: 3,
+    register_type_seq: "-1",
+    person_fullname: ''
   });
+  
 
   const onLPADM01GetDataList = async () => {
     setLoading(true);
     try {
       const res = await LPADM01Services.LPADM01GetDataList(searchData);
-      if (res?.status === 200 || res?.result) {
-        setDataTable(res.result || []);
-        setTotalRecords(res.totalRecords || 0);
+
+      if (res.status === 200) {
+        setDataTable(res.result);
+        setTotalRecords(res.totalRecords);
       } else {
-        showMessages("warn", "ไม่พบข้อมูล", res.errors?.message || "");
+        showMessages("warn", "ไม่พบข้อมูล", res.errors?.message);
       }
     } catch (err) {
-      console.error("[onLPADM01GetDataList] Error:", err);
+      console.error(" LPADM01GetDataList Error:", err);
       showMessages("error", "เกิดข้อผิดพลาด", err.message);
     } finally {
       setLoading(false);
@@ -84,7 +87,7 @@ export default function LPADM01() {
   const onLPADM01DeleteData = async (rowData) => {
     try {
       setLoading(true);
-      // ✅ ต้องส่ง register_file_seq ไม่ใช่ register_seq
+
       const res = await LPADM01Services.LPADM01DeleteRegisterFile(
         rowData.register_file_seq
       );

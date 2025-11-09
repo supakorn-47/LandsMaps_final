@@ -9,16 +9,7 @@ import PageHeader from "../../../components/PageHeader/PageHeader";
 import CustomCard from "../../../components/CustomCard/CustomCard";
 import ServiceLPADM04 from "../../../service/ServiceADM/ServiceLPADM04";
 import { Dialog } from "primereact/dialog";
-
-const QuestionForm = ({ formData }) => {
-  return (
-    <div style={{ padding: "1rem" }}>
-      <h4>กำหนดคำถามสำหรับแบบสอบถาม</h4>
-      <p>ฟอร์มคำถามจะมาอยู่ตรงนี้ (ยังไม่ทำจริง)</p>
-      <pre>{JSON.stringify(formData, null, 2)}</pre>
-    </div>
-  );
-};
+import { Button } from "primereact/button";
 
 export default function LPADM04() {
   const toast = useRef(null);
@@ -26,50 +17,18 @@ export default function LPADM04() {
   const [dataTable, setDataTable] = useState([]);
   const [dialog, setDialog] = useState({
     dialog: false,
+    dialogConfigQuestion: false,
+    dialogGroup: false,
     action: "",
     data: null,
   });
-  const [dialogQuestion, setDialogQuestion] = useState({
-    open: false,
-    formData: null,
-  });
   const [deleteDialog, setDeleteDialog] = useState({ open: false, data: null });
   const [submitted, setSubmitted] = useState(false);
-  
-
-  const formatDate = (date) => {
-    if (!date) return null;
-    const d = new Date(date);
-    return isNaN(d.getTime()) ? null : d.toISOString();
-  };
+  const [formObject, setformObject] = useState([]); // ✅ สำหรับคำถาม
+  const [checkBox, setCheckBox] = useState([]); // ✅ สำหรับกำหนดกลุ่มผู้ใช้
 
   useEffect(() => {
-    let isMounted = true;
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await ServiceLPADM04.getDataList();
-        if (isMounted) {
-          if (res.status === 200 && res.data?.result) {
-            const temp = res.data.result.map((item, index) => ({
-              ...item,
-              index: index + 1,
-            }));
-            setDataTable(temp);
-          } else {
-            showMessages("warn", "ไม่พบข้อมูล");
-          }
-        }
-      } catch (err) {
-        if (isMounted) showMessages("error", "เกิดข้อผิดพลาด", err.message);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-    fetchData();
-    return () => {
-      isMounted = false;
-    };
+    onGetDataList();
   }, []);
 
   const onGetDataList = async () => {
@@ -82,6 +41,8 @@ export default function LPADM04() {
           index: index + 1,
         }));
         setDataTable(temp);
+      } else {
+        showMessages("warn", "ไม่พบข้อมูล");
       }
     } catch (err) {
       showMessages("error", "เกิดข้อผิดพลาด", err.message);
@@ -92,27 +53,17 @@ export default function LPADM04() {
 
   const validation = (object) => {
     let invalid = false;
-    for (const property in object) {
-      if (
-        object[property] === "" ||
-        object[property] === null ||
-        object[property] === undefined
-      ) {
-        if (property !== "remark") invalid = true;
+    for (const [key, value] of Object.entries(object)) {
+      if (key === "remark" || key === "form_remark") continue;
+      if (value === "" || value === null || value === undefined) {
+        console.warn("[DEBUG] validation ไม่ผ่านที่ช่อง:", key);
+        invalid = true;
       }
     }
-    if (invalid) {
-      setSubmitted(true);
-      return false;
-    } else {
-      setSubmitted(false);
-      return true;
-    }
+    return !invalid;
   };
 
   const submitForm = async (form) => {
-    console.log("Action ที่ส่งมาคือ:", dialog.action); // log เพื่อตรวจว่ามาจาก เพิ่ม หรือ แก้ไข
-
     const formatDate = (date) => {
       if (!date) return null;
       const d = new Date(date);
@@ -133,7 +84,10 @@ export default function LPADM04() {
       random_num: 1,
     };
 
-    if (!validation(payload)) return;
+    if (!validation(payload)) {
+      showMessages("warn", "กรุณากรอกข้อมูลให้ครบ");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -162,25 +116,12 @@ export default function LPADM04() {
     }
   };
 
-  const onGetDataSurveyListByFormID = async (form) => {
-    if (!form?.form_seq) {
-      showMessages("warn", "ไม่พบรหัสแบบสอบถาม");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await ServiceLPADM04.getDataSurveyListByFormID(form.form_seq);
-      if (res.status === 200 && res.data?.result) {
-        showMessages("success", "โหลดรายการคำถามสำเร็จ");
-      } else {
-        showMessages("warn", "ไม่พบข้อมูลคำถามในแบบสอบถามนี้");
-      }
-    } catch (err) {
-      showMessages("error", "เกิดข้อผิดพลาด", err.message);
-    } finally {
-      setLoading(false);
-    }
+  const onGetDataSurveyListByFormID = async (rowData) => {
+    setDialog({
+      ...dialog,
+      dialogConfigQuestion: true,
+      data: rowData,
+    });
   };
 
   const onDeleteConfirm = async () => {
@@ -213,7 +154,6 @@ export default function LPADM04() {
     toast.current.show({ severity, summary, detail, life: 8000 });
   };
 
-  // ✅ แก้ตรงนี้: footerButton ต้องไม่มี onClick ที่เปิด dialog ซ้ำ
   const footerButton = () => (
     <FooterButtonCenter
       onClickOk={onDeleteConfirm}
@@ -221,30 +161,40 @@ export default function LPADM04() {
     />
   );
 
+  const onCreateDataSurveyUser = (dataForm) => {
+    console.log("สร้างกลุ่มผู้ใช้:", dataForm);
+  };
+
   return (
     <div className="page-wrapper">
       <Loading loading={loading} />
       <Toast ref={toast} position="top-right" />
       <CustomCard
-        title={
-          <PageHeader config={{ title: "แบบสำรวจความพึงพอใจ (LPADM04)" }} />
-        }
+        title={<PageHeader config={{ title: "แบบสำรวจความพึงพอใจ" }} />}
         body={
           <LPADM04List
             dataTable={dataTable}
             setDialog={setDialog}
             setDeleteDialog={setDeleteDialog}
+            onGetDataSurveyListByFormID={onGetDataSurveyListByFormID}
           />
         }
       />
+
+      {/* ✅ Dialog รวม (Add/Edit/ConfigQuestion/ConfigGroup) */}
       <LPADM04Dialog
         dialog={dialog}
         setDialog={setDialog}
         submitForm={submitForm}
-        submitted={submitted}
         showMessages={showMessages}
-        setLoading={setLoading}
+        onCreateDataSurveyUser={onCreateDataSurveyUser}
+        formObject={formObject}
+        setformObject={setformObject}
+        checkBox={checkBox}
+        setCheckBox={setCheckBox}
       />
+
+      {/* ✅ Delete Dialog */}
       {deleteDialog.open && (
         <DialogDelete
           visible={deleteDialog.open}
@@ -252,19 +202,8 @@ export default function LPADM04() {
           modal
           footer={footerButton()}
           onHide={() => setDeleteDialog({ open: false, data: null })}
-          textContent={`คุณต้องการลบข้อมูล ใช่หรือไม่ ?`}
+          textContent="คุณต้องการลบข้อมูล ใช่หรือไม่ ?"
         />
-      )}
-      {dialogQuestion.open && (
-        <Dialog
-          header="กำหนดคำถาม"
-          visible={dialogQuestion.open}
-          style={{ width: "70vw" }}
-          onHide={() => setDialogQuestion({ open: false, formData: null })}
-          blockScroll
-        >
-          <QuestionForm formData={dialogQuestion.formData} />
-        </Dialog>
       )}
     </div>
   );

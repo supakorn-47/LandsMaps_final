@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 // import ReactToPdf from "react-to-pdf";
 // import { jsPDF } from "jspdf";
 // import { Subtitle } from "@highcharts/react";
-import "chart.js";
+// import "chart.js";
 import "./print.css";
 export default function DGR05Chart({ data }) {
   const [allChartData, setAllChartData] = useState([]);

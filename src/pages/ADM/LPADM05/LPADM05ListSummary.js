@@ -77,6 +77,7 @@ export function LPADM05ListSummary({ dataTableSummary, setDialog }) {
         if (dataTableSummary.header.length === index + 1) {
           return (
             <Column
+              key={`col-last-${index}`}
               field={`data_${index + 1}`}
               header={`${value}`}
               bodyStyle={{ textAlign: "right", width: 150 }}
@@ -86,6 +87,7 @@ export function LPADM05ListSummary({ dataTableSummary, setDialog }) {
         } else if (value === "วันที่") {
           return (
             <Column
+              key={`col-date-${index}`}
               field={`data_${index}`}
               header={`${value}`}
               bodyStyle={{ textAlign: "center", width: 150 }}
@@ -95,6 +97,7 @@ export function LPADM05ListSummary({ dataTableSummary, setDialog }) {
         } else {
           return (
             <Column
+              key={`col-${index}`}
               field={`data_${index}`}
               header={`${value}`}
               bodyStyle={{

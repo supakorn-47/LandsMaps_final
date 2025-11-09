@@ -25,7 +25,7 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
   });
 
   const [formData, setFormData] = useState({
-    announce_date: null,
+    announce_date: new Date(),
     announce_start: null,
     announce_end: null,
     announce_type: null,
@@ -60,6 +60,7 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
       announce_date: toDate(rowData.announce_date),
       announce_start: toDate(rowData.announce_start_date),
       announce_end: toDate(rowData.announce_finish_date),
+      announce_file_types: rowData.announce_file_types || [],
       announce_type: rowData.announce_type || null,
       title_th: rowData.announce_title_th || "",
       title_en: rowData.announce_title_en || "",
@@ -83,6 +84,7 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
         "announce_start",
         "announce_end",
         "announce_type",
+        "announce_file_types",
         "title_th",
         "title_en",
         "detail_th",
@@ -102,6 +104,7 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
         announce_desc_en: formData.detail_en,
         announce_url: formData.link,
         announce_type: formData.announce_type,
+        announce_file_types: formData.announce_file_types,
         record_status: "A",
         files: [...imageFiles, ...pdfFiles],
       };
@@ -143,6 +146,7 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
               announce_start: null,
               announce_end: null,
               announce_type: null,
+              announce_file_types: null,
               title_th: "",
               title_en: "",
               detail_th: "",
@@ -262,9 +266,10 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
                 วันที่ประกาศ <span style={{ color: "red" }}>*</span>
               </label>
               <Calendar
-                value={formData.announce_date}
+                value={formData.announce_date || new Date()} // ✅ แสดงวันปัจจุบัน
                 onChange={(e) => handleChange("announce_date", e.value)}
                 showIcon
+                dateFormat="dd/mm/yy"
                 className={
                   validateField(formData.announce_date) ? "p-invalid" : ""
                 }
@@ -296,7 +301,7 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
                 วันที่เริ่มต้นประกาศ <span style={{ color: "red" }}>*</span>
               </label>
               <Calendar
-                value={formData.announce_start}
+                value={formData.announce_start || null}
                 onChange={(e) => handleChange("announce_start", e.value)}
                 showIcon
                 showTime
@@ -305,12 +310,13 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
                 }
               />
             </div>
+
             <div className="p-field p-col-6">
               <label>
                 วันที่สิ้นสุดประกาศ <span style={{ color: "red" }}>*</span>
               </label>
               <Calendar
-                value={formData.announce_end}
+                value={formData.announce_end || null}
                 onChange={(e) => handleChange("announce_end", e.value)}
                 showIcon
                 showTime
@@ -320,46 +326,78 @@ export default function LPADM03List({ dataTable, setDataTable, onRefresh }) {
               />
             </div>
 
-            {/* --- หัวข้อ --- */}
+            {/* --- หัวข้อประกาศ (ภาษาไทย) --- */}
             <div className="p-field p-col-6">
               <label>
                 หัวข้อประกาศ (ภาษาไทย) <span style={{ color: "red" }}>*</span>
               </label>
               <InputText
-                value={formData.title_th}
-                onChange={(e) => handleChange("title_th", e.target.value)}
+                value={formData.title_th || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const regexTH = /^[ก-๙0-9\s.,()'"!?-]*$/; // ✅ จำกัดเฉพาะภาษาไทย
+                  if (val === "" || regexTH.test(val))
+                    handleChange("title_th", val);
+                }}
                 className={validateField(formData.title_th) ? "p-invalid" : ""}
+                placeholder="กรุณากรอกเฉพาะภาษาไทย"
               />
             </div>
 
+            {/* --- หัวข้อประกาศ (ภาษาอังกฤษ) --- */}
             <div className="p-field p-col-6">
               <label>
                 หัวข้อประกาศ (ภาษาอังกฤษ){" "}
                 <span style={{ color: "red" }}>*</span>
               </label>
               <InputText
-                value={formData.title_en}
-                onChange={(e) => handleChange("title_en", e.target.value)}
+                value={formData.title_en || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const regexEN = /^[A-Za-z0-9\s.,()'"!?-]*$/; // ✅ จำกัดเฉพาะภาษาอังกฤษ
+                  if (val === "" || regexEN.test(val))
+                    handleChange("title_en", val);
+                }}
                 className={validateField(formData.title_en) ? "p-invalid" : ""}
+                placeholder="กรุณากรอกเฉพาะภาษาอังกฤษ"
               />
             </div>
 
-            {/* --- รายละเอียด --- */}
+            {/* --- รายละเอียดประกาศ (ภาษาไทย) --- */}
             <div className="p-field p-col-12">
               <label>รายละเอียดประกาศ (ภาษาไทย)</label>
               <Editor
                 style={{ height: "150px" }}
-                value={formData.detail_th}
-                onTextChange={(e) => handleChange("detail_th", e.htmlValue)}
+                value={formData.detail_th || ""}
+                onTextChange={(e) => {
+                  const val = e.htmlValue;
+                  const regexTH = /^[ก-๙0-9\s.,()'"!?-]*$/;
+                  if (
+                    val === "" ||
+                    regexTH.test(val.replace(/<[^>]*>?/gm, ""))
+                  ) {
+                    handleChange("detail_th", val);
+                  }
+                }}
               />
             </div>
 
+            {/* --- รายละเอียดประกาศ (ภาษาอังกฤษ) --- */}
             <div className="p-field p-col-12">
               <label>รายละเอียดประกาศ (ภาษาอังกฤษ)</label>
               <Editor
                 style={{ height: "150px" }}
-                value={formData.detail_en}
-                onTextChange={(e) => handleChange("detail_en", e.htmlValue)}
+                value={formData.detail_en || ""}
+                onTextChange={(e) => {
+                  const val = e.htmlValue;
+                  const regexEN = /^[A-Za-z0-9\s.,()'"!?-]*$/;
+                  if (
+                    val === "" ||
+                    regexEN.test(val.replace(/<[^>]*>?/gm, ""))
+                  ) {
+                    handleChange("detail_en", val);
+                  }
+                }}
               />
             </div>
 

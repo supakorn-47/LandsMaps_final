@@ -75,8 +75,7 @@ export default function LPADM01Search({
           className="p-button-rounded p-button-info"
           type="button"
           onClick={() => {
-            console.log("searchData:", searchData);
-            if (onSearch) onSearch(searchData);
+            if (onSearch) onSearch();
           }}
         />
       </div>
